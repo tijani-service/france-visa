@@ -1021,7 +1021,9 @@ function buildReport(){
   document.getElementById('rZone').innerHTML=html;
   showS('s2');
   //Ayat
-  sauvegarderClient(ANS, score, niveau, msgWA, packRec);
+ console.log(ANS);
+ // ENVOI GOOGLE SHEET
+    envoyerVersGoogleSheet(ANS);
 }
 
 function buildPacks(recIdx){
@@ -1137,6 +1139,7 @@ function buildJSON(){
 function cpJ(){
   navigator.clipboard.writeText(document.getElementById('jb').textContent).then(function(){alert(LANG==='fr'?'JSON copié!':'تم نسخ JSON!');}).catch(function(){});
 }
+/**
   // End
   // Mettez votre URL Apps Script ici
 const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxKzr6Je5va4ly9pozxEO4K69gnxI0hW9IFyt5HE3hC51GYseQPzYSlFpvH0MY8KKWH/exec';
@@ -1177,7 +1180,26 @@ async function sauvegarderClient(answerObj, score, niveau, msgWA, packRec) {
     // Ne pas bloquer l'UI si ça échoue
   }
 }
+  **/
   
+  function envoyerVersGoogleSheet(data) {
+    const url = "https://script.google.com/macros/s/AKfycbz2X4yh34jsJfr5EfVUKgvdcfkxjCDHMbnhMe9C9grtI4bMvzW5XAo_ECTK3Pnsgoa4/exec";
+
+    fetch(url, {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+    })
+    .then(() => {
+        console.log("Données envoyées avec succès");
+    })
+    .catch(err => {
+        console.error("Erreur envoi :", err);
+    });
+}
 </script>
 </body>
 </html>
