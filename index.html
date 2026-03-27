@@ -877,6 +877,9 @@ function calcAndReport(){
 
   SCORE=Math.max(0,Math.min(100,Math.round(s)));
   buildReport();
+  //Ayat
+  sauvegarderClient(answers, score, niveau, msgWA, packRec);
+
 }
 
 function lvl(sc){
@@ -1134,6 +1137,46 @@ function cpJ(){
   navigator.clipboard.writeText(document.getElementById('jb').textContent).then(function(){alert(LANG==='fr'?'JSON copié!':'تم نسخ JSON!');}).catch(function(){});
 }
   // End
+  // Mettez votre URL Apps Script ici
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxKzr6Je5va4ly9pozxEO4K69gnxI0hW9IFyt5HE3hC51GYseQPzYSlFpvH0MY8KKWH/exec';
+
+async function sauvegarderClient(answerObj, score, niveau, msgWA, packRec) {
+  const payload = {
+    action: 'save_client',
+    client_id: 'CLI-' + Date.now().toString(36).toUpperCase(),
+    langue: LANG,
+    prenom: answerObj.prenom || '',
+    nom: answerObj.nom || '',
+    age: answerObj.age || '',
+    ville: answerObj.ville_maroc || '',
+    emploi: answerObj.emploi || '',
+    motif: answerObj.motif || '',
+    score: score,
+    niveau: niveau,
+    pack_recommande: packRec,
+    pack_choisi: '',
+    consentement: answerObj.consentement || '',
+    points_forts: extrairePointsForts(answerObj),    // tableau de strings
+    points_faibles: extrairePointsFaibles(answerObj), // tableau de strings
+    docs_manquants: extraireDocsManquants(answerObj), // tableau de strings
+    message_wa: msgWA
+  };
+
+  try {
+    // Google Apps Script ne supporte pas CORS direct — on utilise no-cors
+    await fetch(SHEETS_URL, {
+      method: 'POST',
+      mode: 'no-cors',  // obligatoire avec Apps Script
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    console.log('Client sauvegardé :', payload.client_id);
+  } catch (err) {
+    console.error('Erreur sauvegarde :', err);
+    // Ne pas bloquer l'UI si ça échoue
+  }
+}
+  
 </script>
 </body>
 </html>
