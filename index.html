@@ -877,8 +877,7 @@ function calcAndReport(){
 
   SCORE=Math.max(0,Math.min(100,Math.round(s)));
   buildReport();
-  //Ayat
-  sauvegarderClient(answers, score, niveau, msgWA, packRec);
+
 
 }
 
@@ -1021,6 +1020,8 @@ function buildReport(){
 
   document.getElementById('rZone').innerHTML=html;
   showS('s2');
+  //Ayat
+  sauvegarderClient(ANS, score, niveau, msgWA, packRec);
 }
 
 function buildPacks(recIdx){
