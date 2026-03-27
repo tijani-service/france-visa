@@ -1,0 +1,992 @@
+
+<!DOCTYPE html>
+<div id="root"></div>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--c1:#1a56db;--c2:#e8f0fe;--c3:#0e3a8c;--cg:#f0f4ff;--ct:#374151;--cs:#6b7280;--cb:#e5e7eb;--cr:#dc2626;--co:#d97706;--cok:#059669;--brad:10px;--brad2:6px}
+body{font-family:'Segoe UI',system-ui,sans-serif;color:var(--ct);font-size:14px;background:transparent}
+.app{max-width:780px;margin:0 auto;padding:1rem 0}
+.screen{display:none}.screen.active{display:block}
+h1{font-size:20px;font-weight:600;color:var(--color-text-primary)}
+h2{font-size:17px;font-weight:600;color:var(--color-text-primary);margin-bottom:.75rem}
+h3{font-size:14px;font-weight:600;color:var(--color-text-primary);margin-bottom:.5rem}
+p{font-size:13px;color:var(--color-text-secondary);line-height:1.6}
+.card{background:var(--color-background-primary);border:.5px solid var(--color-border-tertiary);border-radius:var(--brad);padding:1.25rem;margin-bottom:.875rem}
+.card-info{border-color:var(--color-border-info);background:var(--color-background-info)}
+.card-warn{border-color:var(--color-border-warning);background:var(--color-background-warning)}
+.card-ok{border-color:var(--color-border-success);background:var(--color-background-success)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border:.5px solid var(--color-border-secondary);border-radius:var(--brad2);background:transparent;color:var(--color-text-primary);font-size:13px;font-weight:500;cursor:pointer;transition:background .15s}
+.btn:hover{background:var(--color-background-secondary)}
+.btn-p{background:var(--color-background-info);color:var(--color-text-info);border-color:var(--color-border-info)}
+.btn-p:hover{opacity:.85}
+.btn-full{width:100%;justify-content:center}
+.prog-wrap{margin-bottom:1.25rem}
+.prog-bar{height:5px;background:var(--color-background-secondary);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;background:var(--color-text-info);transition:width .4s;border-radius:3px}
+.prog-lbl{display:flex;justify-content:space-between;font-size:11px;color:var(--color-text-tertiary);margin-bottom:5px}
+.field{margin-bottom:1rem}
+label.fl{display:block;font-size:12px;font-weight:600;color:var(--color-text-secondary);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px}
+select,input[type=text],input[type=email],input[type=tel],input[type=number],textarea{width:100%;padding:8px 11px;border:.5px solid var(--color-border-secondary);border-radius:var(--brad2);background:var(--color-background-primary);color:var(--color-text-primary);font-size:13px}
+textarea{min-height:70px;resize:vertical}
+.rgroup{display:flex;flex-direction:column;gap:6px}
+.ropt{display:flex;align-items:flex-start;gap:9px;padding:9px 11px;border:.5px solid var(--color-border-tertiary);border-radius:var(--brad2);cursor:pointer;font-size:13px;color:var(--color-text-primary);transition:all .15s;line-height:1.4}
+.ropt:hover{background:var(--color-background-secondary)}
+.ropt.sel{border-color:var(--color-border-info);background:var(--color-background-info);color:var(--color-text-info)}
+.ropt.sel .rdisc{background:var(--color-text-info)}
+.rdisc{width:13px;height:13px;border-radius:50%;border:.5px solid var(--color-border-secondary);flex-shrink:0;margin-top:1px;transition:background .15s}
+.cgroup{display:flex;flex-direction:column;gap:6px}
+.copt{display:flex;align-items:flex-start;gap:9px;padding:9px 11px;border:.5px solid var(--color-border-tertiary);border-radius:var(--brad2);cursor:pointer;font-size:13px;color:var(--color-text-primary);transition:all .15s;line-height:1.4}
+.copt:hover{background:var(--color-background-secondary)}
+.copt.sel{border-color:var(--color-border-success);background:var(--color-background-success);color:var(--color-text-success)}
+.copt.sel .cbox{background:var(--color-text-success)}
+.cbox{width:13px;height:13px;border-radius:3px;border:.5px solid var(--color-border-secondary);flex-shrink:0;margin-top:1px}
+.impact-note{font-size:10px;color:var(--color-text-tertiary);margin-top:3px;padding-left:2px}
+.badge{display:inline-block;font-size:11px;padding:2px 9px;border-radius:20px;font-weight:500}
+.b-info{background:var(--color-background-info);color:var(--color-text-info)}
+.b-ok{background:var(--color-background-success);color:var(--color-text-success)}
+.b-warn{background:var(--color-background-warning);color:var(--color-text-warning)}
+.b-danger{background:var(--color-background-danger);color:var(--color-text-danger)}
+.nav-btns{display:flex;justify-content:space-between;margin-top:1.5rem;gap:10px}
+.score-ring{width:110px;height:110px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto .875rem;border:3px solid}
+.flag{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:.5px solid var(--color-border-tertiary);font-size:12px;line-height:1.4}
+.flag:last-child{border:none}
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.dr{background:#E24B4A}.do{background:#EF9F27}.dg{background:#639922}
+.wa-pre{background:var(--color-background-secondary);border-radius:var(--brad2);padding:1rem;font-size:12px;line-height:1.7;white-space:pre-wrap;color:var(--color-text-primary);font-family:var(--font-mono);max-height:360px;overflow-y:auto}
+.rtl{direction:rtl;text-align:right}
+.tab-row{display:flex;gap:4px;border-bottom:.5px solid var(--color-border-tertiary);margin-bottom:.875rem}
+.tab{padding:7px 13px;font-size:12px;cursor:pointer;border-bottom:2px solid transparent;color:var(--color-text-secondary)}
+.tab.act{border-bottom-color:var(--color-text-info);color:var(--color-text-info);font-weight:600}
+.disc{font-size:11px;color:var(--color-text-tertiary);line-height:1.5;padding:.75rem;background:var(--color-background-secondary);border-radius:var(--brad2);margin-top:.875rem}
+.pack-card{border:.5px solid var(--color-border-tertiary);border-radius:var(--brad);padding:1.1rem;margin-bottom:.75rem;cursor:pointer}
+.pack-feat{border:2px solid var(--color-border-info)}
+.pack-price{font-size:19px;font-weight:600;color:var(--color-text-primary)}
+.section-tag{display:inline-block;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;padding:2px 8px;border-radius:20px;margin-bottom:.5rem;background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.alert-box{padding:.75rem 1rem;border-radius:var(--brad2);font-size:12px;margin-bottom:.75rem;border:.5px solid}
+.alert-warn{background:var(--color-background-warning);border-color:var(--color-border-warning);color:var(--color-text-warning)}
+.alert-info{background:var(--color-background-info);border-color:var(--color-border-info);color:var(--color-text-info)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:520px){.two-col{grid-template-columns:1fr}}
+.json-box{background:var(--color-background-secondary);border-radius:var(--brad2);padding:1rem;font-size:10px;line-height:1.5;white-space:pre-wrap;color:var(--color-text-primary);font-family:var(--font-mono);max-height:400px;overflow-y:auto}
+.checklist-item{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--color-text-secondary);padding:3px 0}
+</style>
+
+<div class="app" id="APP">
+
+<!-- S0: LANGUE -->
+<div class="screen active" id="s0">
+  <div style="text-align:center;padding:2rem 1rem 1rem">
+    <div style="font-size:36px;margin-bottom:1rem">🇫🇷 🇲🇦</div>
+    <h1 style="margin-bottom:.5rem">Visa France — Évaluation de dossier</h1>
+    <p style="margin-bottom:.25rem">Service d'aide à la préparation — Clients marocains</p>
+    <p style="font-size:11px;margin-bottom:2rem">خدمة مساعدة في تحضير ملف التأشيرة — العملاء المغاربة</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:360px;margin:0 auto 1.5rem">
+      <button class="btn btn-full" style="padding:16px;font-size:15px;flex-direction:column;gap:4px" onclick="init('fr')">
+        <span style="font-size:24px">🇫🇷</span>Français
+      </button>
+      <button class="btn btn-full" style="padding:16px;font-size:15px;flex-direction:column;gap:4px" onclick="init('ar')">
+        <span style="font-size:24px">🇲🇦</span>العربية
+      </button>
+    </div>
+  </div>
+  <div class="disc" style="max-width:540px;margin:0 auto">⚠️ Ce service évalue votre préparation au dossier visa. Il <strong>ne garantit pas</strong> l'obtention du visa. La décision appartient exclusivement aux autorités consulaires françaises. Données traitées en toute confidentialité.
+  <br><br>⚠️ هذه الخدمة تُقيّم جاهزية ملفك فقط. <strong>لا تضمن</strong> الحصول على التأشيرة. القرار يعود حصراً للسلطات القنصلية الفرنسية.
+  </div>
+</div>
+
+<!-- S1: QUESTIONNAIRE -->
+<div class="screen" id="s1">
+  <div class="prog-wrap">
+    <div class="prog-lbl"><span id="stepLbl"></span><span id="stepPct"></span></div>
+    <div class="prog-bar"><div class="prog-fill" id="pFill" style="width:5%"></div></div>
+  </div>
+  <div id="qZone"></div>
+  <div class="nav-btns">
+    <button class="btn" id="btnBack" onclick="prevQ()">← <span id="lblBack">Retour</span></button>
+    <button class="btn btn-p" id="btnFwd" onclick="nextQ()"><span id="lblFwd">Continuer</span> →</button>
+  </div>
+</div>
+
+<!-- S2: RAPPORT -->
+<div class="screen" id="s2"><div id="rZone"></div></div>
+<!-- S3: PACKS -->
+<div class="screen" id="s3"><div id="pkZone"></div></div>
+<!-- S4: WHATSAPP -->
+<div class="screen" id="s4"><div id="waZone"></div></div>
+<!-- S5: JSON -->
+<div class="screen" id="s5"><div id="jsZone"></div></div>
+
+</div>
+
+<script>
+var LANG='fr', ANS={}, SCORE=0;
+
+var L={
+fr:{
+  back:'Retour',fwd:'Continuer',calc:'Calculer mon score',
+  step:'Étape',of:'sur',
+  blocks:[
+    'Informations personnelles',
+    'Situation professionnelle',
+    'Revenus & finances',
+    'Objet & durée du voyage',
+    'Hébergement & garant',
+    'Historique de voyage & refus',
+    'Cas spéciaux — Étudiant / Stage',
+    'Cas spéciaux — Mineur',
+    'Cas spéciaux — Retraité / Sans emploi',
+    'Cas spéciaux — Sponsor & Garant',
+    'Cas spéciaux — Antécédents de refus',
+    'Cas spéciaux — Travailleur indépendant',
+    'Documents disponibles & consentement'
+  ]
+},
+ar:{
+  back:'رجوع',fwd:'متابعة',calc:'احسب نتيجتي',
+  step:'خطوة',of:'من',
+  blocks:[
+    'المعلومات الشخصية',
+    'الوضع المهني',
+    'الدخل والماليات',
+    'الغرض من السفر والمدة',
+    'الإقامة والكفيل',
+    'تاريخ السفر والرفض',
+    'حالات خاصة — طالب / متدرب',
+    'حالات خاصة — قاصر',
+    'حالات خاصة — متقاعد / بدون عمل',
+    'حالات خاصة — الكفيل والضامن',
+    'حالات خاصة — سوابق الرفض',
+    'حالات خاصة — عامل مستقل',
+    'الوثائق المتوفرة والموافقة'
+  ]
+}
+};
+
+function T(key){return L[LANG][key]||key;}
+
+// ALL QUESTIONS indexed by block
+var QBLOCKS_FR=[
+  // 0 - Infos perso
+  [
+    {id:'prenom',lbl:'Prénom',type:'text',req:true,imp:'Identification'},
+    {id:'nom',lbl:'Nom de famille',type:'text',req:true,imp:'Identification'},
+    {id:'age',lbl:'Tranche d\'âge',type:'radio',req:true,imp:'Détermine les sous-questions (mineur, retraité...)',
+     opts:['Moins de 18 ans (mineur)','18–25 ans','26–35 ans','36–50 ans','51–65 ans','Plus de 65 ans (retraité)']},
+    {id:'sexe',lbl:'Genre',type:'radio',req:false,imp:'Cohérence administrative',
+     opts:['Homme','Femme','Non précisé']},
+    {id:'nationalite',lbl:'Nationalité',type:'radio',req:true,imp:'Passeport et procédure',
+     opts:['Marocaine uniquement','Double nationalité (Maroc + autre)','Autre (résidant au Maroc)']},
+    {id:'ville_maroc',lbl:'Ville de résidence au Maroc',type:'radio',req:true,imp:'Consulat compétent (Casablanca, Rabat, Fès, Marrakech, Agadir)',
+     opts:['Casablanca','Rabat','Fès','Marrakech','Agadir','Tanger','Oujda','Autre ville']},
+    {id:'statut_civil',lbl:'Situation familiale',type:'radio',req:true,imp:'Attaches au Maroc — jusqu\'à 8 pts',
+     opts:['Célibataire sans enfants','Célibataire avec enfants','Marié(e) sans enfants','Marié(e) avec enfants','Divorcé(e)','Veuf/Veuve','En concubinage']},
+    {id:'enfants_maroc',lbl:'Avez-vous des enfants mineurs résidant au Maroc ?',type:'radio',req:true,imp:'+5 pts — ancrage fort',
+     opts:['Oui','Non']},
+    {id:'conjoint_maroc',lbl:'Votre conjoint(e) reste-t-il/elle au Maroc pendant votre absence ?',type:'radio',req:false,imp:'+4 pts — retour garanti',
+     opts:['Oui, conjoint(e) reste au Maroc','Non, voyage ensemble','Non applicable']},
+  ],
+  // 1 - Emploi
+  [
+    {id:'emploi',lbl:'Situation professionnelle actuelle',type:'radio',req:true,imp:'Critère majeur — jusqu\'à 15 pts',
+     opts:['Salarié(e) secteur privé (CDI)','Salarié(e) secteur privé (CDD)','Fonctionnaire / Salarié secteur public','Commerçant(e) inscrit(e)','Travailleur(se) indépendant(e) / Freelance','Auto-entrepreneur(se)','Chef(fe) d\'entreprise / Gérant(e)','Étudiant(e) (enseignement supérieur)','Lycéen(ne) / Élève','Retraité(e)','Sans emploi (chercheur d\'emploi)','Femme/Homme au foyer','Autre']},
+    {id:'anciennete',lbl:'Ancienneté dans votre poste ou activité actuelle',type:'radio',req:false,imp:'Stabilité — jusqu\'à 8 pts',
+     opts:['Moins de 3 mois','3 à 6 mois','6 mois à 1 an','1 à 3 ans','Plus de 3 ans','Non applicable']},
+    {id:'secteur',lbl:'Secteur d\'activité ou domaine d\'études',type:'text',req:false,imp:'Cohérence du motif'},
+    {id:'employeur_connu',lbl:'Votre employeur est-il connu / référencé (grande entreprise, administration, multinationale) ?',type:'radio',req:false,imp:'Crédibilité employeur +3',
+     opts:['Oui, grande entreprise / admin connue','Oui, PME locale connue','Non, petite structure','Non applicable']},
+  ],
+  // 2 - Finances
+  [
+    {id:'revenu',lbl:'Revenu mensuel net déclaré (MAD)',type:'radio',req:true,imp:'Critère majeur — jusqu\'à 15 pts',
+     opts:['Moins de 3 000 MAD','3 000 – 5 000 MAD','5 000 – 8 000 MAD','8 000 – 15 000 MAD','15 000 – 25 000 MAD','Plus de 25 000 MAD','Revenus variables / irréguliers','Pris(e) en charge par un tiers / sponsor']},
+    {id:'epargne',lbl:'Épargne disponible (compte épargne, livret, CCP...)',type:'radio',req:true,imp:'Solvabilité — jusqu\'à 8 pts',
+     opts:['Moins de 3 000 MAD','3 000 – 10 000 MAD','10 000 – 25 000 MAD','25 000 – 50 000 MAD','Plus de 50 000 MAD']},
+    {id:'releves',lbl:'État de votre compte bancaire principal (3 derniers mois)',type:'radio',req:true,imp:'Document critique — jusqu\'à 6 pts',
+     opts:['Compte actif, mouvements réguliers et positifs','Compte actif, mais solde faible ou irrégulier','Compte récemment ouvert (moins de 3 mois)','Pas de compte bancaire formel']},
+    {id:'dettes',lbl:'Avez-vous des crédits ou dettes en cours ?',type:'radio',req:false,imp:'Signal de fragilité si élevé',
+     opts:['Non, aucun crédit','Oui, crédit immobilier (hypothèque)','Oui, crédit auto / consommation','Oui, plusieurs crédits','Oui, et difficultés de remboursement']},
+    {id:'budget_voyage',lbl:'Budget total prévu pour ce voyage (billets + hébergement + frais)',type:'radio',req:false,imp:'Cohérence financière du projet',
+     opts:['Moins de 5 000 MAD','5 000 – 10 000 MAD','10 000 – 20 000 MAD','20 000 – 40 000 MAD','Plus de 40 000 MAD','Pris en charge par un tiers']},
+  ],
+  // 3 - Motif voyage
+  [
+    {id:'motif',lbl:'Motif principal du voyage',type:'radio',req:true,imp:'Détermine le parcours France-Visas et les documents requis',
+     opts:['Tourisme / Loisirs','Visite familiale (famille en France)','Visite amicale (ami(e) en France)','Voyage d\'affaires / Réunion professionnelle','Conférence / Salon professionnel','Études (inscription université/école)','Stage professionnel (convention de stage)','Formation courte (moins de 3 mois)','Traitement médical','Transit France','Mariage en France','Autre séjour justifié']},
+    {id:'duree',lbl:'Durée prévue du séjour',type:'radio',req:true,imp:'Cohérence avec motif — drapeau si incohérence',
+     opts:['1 à 5 jours','6 à 10 jours','11 à 21 jours','22 à 30 jours','31 à 60 jours','61 à 90 jours','Plus de 90 jours (visa long séjour)']},
+    {id:'destination_fr',lbl:'Destination(s) principale(s) en France',type:'text',req:false,imp:'Cohérence ville/motif'},
+    {id:'premier_voyage',lbl:'Est-ce votre premier voyage en France ?',type:'radio',req:true,imp:'Primo-demandeur = sous-questions spécifiques',
+     opts:['Oui, première fois','Non, j\'ai déjà été en France','Non, j\'ai un visa France en cours de validité']},
+    {id:'aller_retour',lbl:'Avez-vous déjà acheté ou réservé les billets d\'avion ?',type:'radio',req:true,imp:'Billet retour = preuve d\'intention de retour +4',
+     opts:['Oui, billets aller-retour achetés','Oui, réservation uniquement (non payée)','Non, pas encore','Voyage en voiture / train / bateau']},
+  ],
+  // 4 - Hébergement
+  [
+    {id:'hebergement',lbl:'Type d\'hébergement prévu en France',type:'radio',req:true,imp:'Preuve hébergement obligatoire — jusqu\'à 7 pts',
+     opts:['Attestation d\'hébergement officielle (famille/ami)','Réservation hôtel confirmée et payée','Réservation hôtel non payée','Location Airbnb / appartement (confirmation)','Résidence universitaire / CROUS','Hébergement employeur / entreprise (lettre)','Logement médical (clinique/hôpital)','Pas encore défini']},
+    {id:'invitant_statut',lbl:'Statut de la personne qui vous héberge (si hébergement privé)',type:'radio',req:false,imp:'Crédibilité de l\'invitation',
+     opts:['Citoyen(ne) français(e)','Résident(e) permanent(e) en France','Titulaire d\'un titre de séjour valide','Étudiant(e) en France','Non applicable (hôtel/résidence)']},
+    {id:'invitant_lien',lbl:'Lien avec la personne hébergeante',type:'radio',req:false,imp:'Cohérence familiale/sociale',
+     opts:['Parent direct (père/mère/enfant/frère/sœur)','Conjoint(e) / Partenaire','Grand-parent / oncle / tante / cousin(e)','Ami(e) proche','Collègue / relation professionnelle','Non applicable']},
+    {id:'garant_finance',lbl:'Qui assure la prise en charge financière du séjour ?',type:'radio',req:true,imp:'Clarté de prise en charge — jusqu\'à 8 pts',
+     opts:['Moi-même (fonds propres)','Famille en France (attestation de prise en charge)','Famille au Maroc (virement prévu)','Mon employeur au Maroc','Mon employeur / partenaire en France','Bourse / établissement d\'enseignement','Non encore défini']},
+    {id:'assurance',lbl:'Assurance voyage médicale (min. 30 000 € couvrant tout l\'espace Schengen)',type:'radio',req:true,imp:'OBLIGATOIRE — bloquant si absent',
+     opts:['Oui, déjà souscrite (document disponible)','Oui, prévue mais pas encore souscrite','Non']},
+  ],
+  // 5 - Historique
+  [
+    {id:'hist_voyage',lbl:'Avez-vous déjà voyagé à l\'étranger (hors Maroc) ?',type:'radio',req:true,imp:'Historique — jusqu\'à 10 pts',
+     opts:['Oui, plusieurs fois dans l\'espace Schengen','Oui, une fois dans l\'espace Schengen','Oui, hors espace Schengen (Turquie, Emirats, USA...)','Oui, en Afrique / Moyen-Orient uniquement','Non, jamais voyagé à l\'étranger']},
+    {id:'visa_schengen_actif',lbl:'Avez-vous un visa Schengen en cours de validité ?',type:'radio',req:true,imp:'Signal très fort +8',
+     opts:['Oui, visa Schengen actif (non expiré)','Oui, expiré il y a moins de 12 mois','Oui, expiré il y a plus de 12 mois','Non, jamais eu de visa Schengen']},
+    {id:'usa_uk_visa',lbl:'Avez-vous un visa USA, UK, Canada, Australie en cours de validité ou récent ?',type:'radio',req:false,imp:'Profil voyageur rassurant +3',
+     opts:['Oui, USA ou Canada','Oui, Royaume-Uni','Oui, Australie / Nouvelle-Zélande','Autre pays hors Schengen','Non']},
+    {id:'refus',lbl:'Avez-vous déjà essuyé un refus de visa ?',type:'radio',req:true,imp:'Drapeau rouge majeur — jusqu\'à -18 pts',
+     opts:['Non, aucun refus','Oui, un refus France (Schengen)','Oui, un refus autre pays Schengen','Oui, un refus hors Schengen (USA, UK...)','Oui, plusieurs refus (2 et plus)']},
+    {id:'interdiction',lbl:'Faites-vous l\'objet d\'une interdiction de territoire ou d\'un refus d\'entrée connu ?',type:'radio',req:true,imp:'Bloquant absolu si oui',
+     opts:['Non','Oui, interdiction de territoire française','Oui, signalement SIS (espace Schengen)','Je ne suis pas sûr(e)']},
+  ],
+  // 6 - Cas spécial Étudiant/Stage
+  [
+    {id:'etudiant_etablissement',lbl:'Êtes-vous inscrit(e) ou pré-inscrit(e) dans un établissement français ?',type:'radio',req:false,imp:'Inscription = preuve fondamentale études',
+     opts:['Oui, inscription ferme (lettre d\'admission)','Oui, pré-inscription (conditionnelle)','Non, en cours de démarche','Non applicable']},
+    {id:'campus_france',lbl:'Avez-vous passé par la procédure Campus France Maroc ?',type:'radio',req:false,imp:'Obligatoire pour certaines filières — +5 pts si complété',
+     opts:['Oui, dossier Campus France validé','Oui, en cours','Non (filière non concernée)','Non applicable']},
+    {id:'bourse',lbl:'Bénéficiez-vous d\'une bourse d\'études ou d\'une aide financière pour ce séjour ?',type:'radio',req:false,imp:'+5 pts — financement rassurant',
+     opts:['Oui, bourse marocaine (AMCI, université...)','Oui, bourse française (gouvernementale, Erasmus...)','Oui, bourse entreprise / fondation privée','Non']},
+    {id:'stage_convention',lbl:'Disposez-vous d\'une convention de stage signée par les deux parties ?',type:'radio',req:false,imp:'Document obligatoire pour visa stage',
+     opts:['Oui, convention de stage signée','Non, en cours de signature','Non applicable']},
+    {id:'stage_duree',lbl:'Durée du stage prévu',type:'radio',req:false,imp:'Stage > 3 mois = visa long séjour nécessaire',
+     opts:['Moins d\'1 mois','1 à 3 mois (visa court séjour possible)','3 à 6 mois (visa long séjour requis)','6 mois à 1 an','Plus d\'1 an','Non applicable']},
+    {id:'logement_etudiant',lbl:'Logement étudiant confirmé en France ?',type:'radio',req:false,imp:'Preuve hébergement critique pour visa étudiant',
+     opts:['Oui, CROUS (attestation disponible)','Oui, résidence privée étudiante','Oui, chez de la famille','Oui, appartement partagé (bail signé)','Non, pas encore confirmé','Non applicable']},
+  ],
+  // 7 - Cas spécial Mineur
+  [
+    {id:'mineur_age_exact',lbl:'Âge exact du mineur (si concerné)',type:'radio',req:false,imp:'Moins de 15 ans = règles spécifiques',
+     opts:['Moins de 5 ans','5 à 11 ans','12 à 14 ans','15 à 17 ans','Non applicable (majeur)']},
+    {id:'mineur_accompagne',lbl:'Le mineur voyage-t-il accompagné ?',type:'radio',req:false,imp:'Mineur non accompagné = autorisation parentale obligatoire',
+     opts:['Oui, par ses deux parents','Oui, par un seul parent (le père ou la mère)','Oui, par un tuteur légal','Non, voyage seul (mineur non accompagné)','Non applicable']},
+    {id:'mineur_autorisation',lbl:'Autorisation de sortie du territoire signée par les deux parents (si 1 seul parent voyage) ?',type:'radio',req:false,imp:'Obligatoire — bloquant si absent',
+     opts:['Oui, autorisation disponible','Non, pas encore faite','Le parent absent est décédé / introuvable (justificatif requis)','Non applicable']},
+    {id:'mineur_passeport',lbl:'Le mineur possède-t-il son propre passeport ?',type:'radio',req:false,imp:'Passeport individuel obligatoire même pour les nourrissons',
+     opts:['Oui, passeport individuel valide','Non (inscrit sur le passeport parental — non reconnu UE)','En cours de renouvellement','Non applicable']},
+    {id:'mineur_tuteur_fr',lbl:'Qui sera responsable du mineur en France ?',type:'radio',req:false,imp:'Responsabilité légale lors du séjour',
+     opts:['Ses parents (voyagent ensemble)','Un seul parent (voyage avec lui/elle)','Famille en France (oncle, tante, grands-parents...)','Établissement scolaire / camp de vacances','Non applicable']},
+  ],
+  // 8 - Cas spécial Retraité / Sans emploi
+  [
+    {id:'retraite_pension',lbl:'Si retraité(e) : percevez-vous une pension de retraite régulière ?',type:'radio',req:false,imp:'Pension = revenu stable +6',
+     opts:['Oui, pension régulière (justificatif disponible)','Oui, mais irrégulière ou partielle','Non, retraite non encore liquidée','Non applicable']},
+    {id:'retraite_biens',lbl:'Possédez-vous des biens immobiliers au Maroc (maison, appartement, terrain) ?',type:'radio',req:false,imp:'Ancrage fort au Maroc +5',
+     opts:['Oui, propriétaire d\'un bien immobilier','Oui, plusieurs biens','Non, locataire','Non applicable']},
+    {id:'sans_emploi_allocation',lbl:'Si sans emploi : percevez-vous une allocation chômage ou aide sociale ?',type:'radio',req:false,imp:'Revenu minimal rassurant +2',
+     opts:['Oui, allocation ANAPEC ou équivalente','Oui, aide familiale documentée','Non, aucun revenu déclaré','Non applicable']},
+    {id:'sans_emploi_charge',lbl:'Si sans emploi : qui finance le voyage ?',type:'radio',req:false,imp:'Sponsor obligatoire si aucun revenu',
+     opts:['Un proche en France (prise en charge officielle)','Un proche au Maroc (virement documenté)','Mes économies personnelles','Je suis dans l\'incapacité de financer ce voyage','Non applicable']},
+    {id:'foyer_charge',lbl:'Si femme/homme au foyer : votre conjoint(e) peut-il/elle justifier les revenus du foyer ?',type:'radio',req:false,imp:'Revenus du foyer = revenu accepté si documenté',
+     opts:['Oui, justificatifs revenus du conjoint disponibles','Partiellement','Non','Non applicable']},
+  ],
+  // 9 - Cas spécial Sponsor/Garant
+  [
+    {id:'sponsor_type',lbl:'Nature du sponsor ou garant financier',type:'radio',req:false,imp:'Garant en France = signal fort si attestation officielle',
+     opts:['Aucun sponsor (auto-financement)','Garant en France (citoyen ou résident)','Garant au Maroc (proche, entreprise)','Employeur en France (ordre de mission)','Établissement scolaire / université','Organisation internationale / ONG','Non applicable']},
+    {id:'sponsor_doc',lbl:'Le sponsor peut-il fournir une attestation officielle de prise en charge ?',type:'radio',req:false,imp:'Attestation notariée ou consulaire +6',
+     opts:['Oui, attestation sur l\'honneur signée','Oui, attestation notariée / consulaire','Non, engagement verbal uniquement','Non applicable']},
+    {id:'garant_titre',lbl:'Le garant en France dispose-t-il d\'un titre de séjour ou de la nationalité française ?',type:'radio',req:false,imp:'Statut légal du garant en France',
+     opts:['Oui, citoyen français','Oui, résident permanent (carte 10 ans)','Oui, titre de séjour temporaire en cours','Non, situation irrégulière','Non applicable']},
+    {id:'garant_revenus',lbl:'Les revenus du garant en France sont-ils suffisants et justifiés ?',type:'radio',req:false,imp:'Capacité financière du garant — évalue la crédibilité',
+     opts:['Oui, justificatifs de revenus disponibles','Partiellement disponibles','Non, difficile à prouver','Non applicable']},
+  ],
+  // 10 - Cas spécial Refus
+  [
+    {id:'refus_nb',lbl:'Nombre total de refus de visa reçus (tous pays confondus)',type:'radio',req:false,imp:'Chaque refus supplémentaire aggrave le risque',
+     opts:['Aucun refus','1 refus','2 refus','3 refus ou plus','Non applicable']},
+    {id:'refus_pays',lbl:'Pays ayant refusé (si refus)',type:'check',req:false,imp:'Refus France / Schengen = le plus pénalisant',
+     opts:['France','Autre pays Schengen (Allemagne, Espagne, Italie...)','Royaume-Uni','États-Unis / Canada','Autre pays','Non applicable']},
+    {id:'refus_motif_connu',lbl:'Connaissez-vous le motif officiel du refus ?',type:'radio',req:false,imp:'Motif connu = correction possible +3',
+     opts:['Dossier incomplet ou pièce manquante','Doute sur l\'intention de retour au Maroc','Ressources insuffisantes','Motif du voyage non crédible','Antécédents négatifs (séjour irrégulier...)','Incohérence entre déclarations et documents','Je ne connais pas le motif précis','Non applicable']},
+    {id:'refus_action',lbl:'Avez-vous pris des mesures correctives depuis ce refus ?',type:'radio',req:false,imp:'Correction active = signe positif +4',
+     opts:['Oui, dossier amélioré (relevés, justificatifs...)','Oui, situation professionnelle / financière améliorée','Partiellement','Non, première tentative de correction','Non applicable']},
+    {id:'refus_delai',lbl:'Combien de temps s\'est écoulé depuis le dernier refus ?',type:'radio',req:false,imp:'Délai > 6 mois après correction = recours envisageable',
+     opts:['Moins de 3 mois','3 à 6 mois','6 mois à 1 an','Plus d\'1 an','Non applicable']},
+  ],
+  // 11 - Cas spécial Indépendant/Commerçant
+  [
+    {id:'independant_registre',lbl:'Êtes-vous officiellement inscrit(e) au registre de commerce ou équivalent ?',type:'radio',req:false,imp:'Registre officiel = légitimité professionnelle +4',
+     opts:['Oui, registre de commerce (RC)','Oui, patente / autorisation d\'exercice','Non, activité informelle','Non applicable']},
+    {id:'independant_anciennete',lbl:'Ancienneté de votre activité indépendante',type:'radio',req:false,imp:'Plus de 3 ans = solidité +5',
+     opts:['Moins d\'1 an','1 à 3 ans','Plus de 3 ans','Non applicable']},
+    {id:'independant_chiffre',lbl:'Chiffre d\'affaires annuel approximatif',type:'radio',req:false,imp:'Niveau d\'activité — cohérence financière',
+     opts:['Moins de 50 000 MAD','50 000 – 150 000 MAD','150 000 – 500 000 MAD','Plus de 500 000 MAD','Non applicable']},
+    {id:'independant_liasse',lbl:'Disposez-vous de vos liasses fiscales (déclarations IS / IR des 2 dernières années) ?',type:'radio',req:false,imp:'Document clé pour indépendants',
+     opts:['Oui, liasses fiscales disponibles','Partiellement (1 année seulement)','Non, pas encore déclaré','Non applicable']},
+    {id:'independant_siege',lbl:'Avez-vous un siège social ou local professionnel au Maroc ?',type:'radio',req:false,imp:'Ancrage professionnel = preuve de retour',
+     opts:['Oui, local professionnel propre','Oui, adresse domiciliaire déclarée','Non, activité nomade / sans local fixe','Non applicable']},
+  ],
+  // 12 - Documents + Consentement
+  [
+    {id:'docs',lbl:'Cochez tous les documents que vous possédez déjà',type:'check',req:true,imp:'Complétude documentaire — jusqu\'à 20 pts',
+     opts:[
+       'Passeport valide (expire au moins 6 mois après la date de retour)',
+       'Formulaire de demande France-Visas complété et imprimé',
+       'Photos d\'identité conformes aux normes (format biométrique)',
+       'Attestation d\'emploi ou de scolarité récente',
+       'Bulletins de salaire (3 derniers mois)',
+       'Relevés de compte bancaire (3 derniers mois)',
+       'Justificatif de domicile au Maroc (moins de 3 mois)',
+       'Billet d\'avion aller-retour (ou réservation confirmée)',
+       'Preuve d\'hébergement en France (attestation, hôtel, CROUS...)',
+       'Assurance voyage / rapatriement (30 000 € min., espace Schengen)',
+       'Lettre de motivation du voyage rédigée',
+       'Invitation / Attestation d\'hébergement officielle',
+       'Acte de naissance (original + copie)',
+       'Extrait de casier judiciaire (si demandé)',
+       'Liasses fiscales / déclaration revenus (indépendants)',
+       'Convention de stage signée (si stage)',
+       'Lettre d\'admission université / école (si études)',
+       'Attestation Campus France validée (si études)',
+       'Autorisation de sortie de territoire (si mineur)',
+       'Passeport individuel du mineur',
+       'Attestation de prise en charge du garant (si sponsor)',
+       'Copie titre de séjour du garant (si garant en France)',
+       'Ordonnances / certificat médical (si traitement médical)'
+     ]},
+    {id:'docs_traduction',lbl:'Certains de vos documents sont-ils rédigés en arabe ou en langue étrangère (non français) ?',type:'radio',req:true,imp:'Traduction assermentée obligatoire en France',
+     opts:['Non, tous mes documents sont en français ou en français+arabe','Oui, certains documents sont en arabe uniquement','Oui, documents en tamazight ou autre langue','Non concerné']},
+    {id:'consentement',lbl:'Je consens au traitement de mes données à des fins d\'évaluation de dossier visa, en toute confidentialité, conformément aux dispositions légales applicables.',type:'radio',req:true,imp:'Obligatoire pour continuer',
+     opts:['J\'accepte','Je refuse']},
+  ]
+];
+
+var QBLOCKS_AR=[
+  // 0
+  [
+    {id:'prenom',lbl:'الاسم الأول',type:'text',req:true,imp:'تعريف العميل'},
+    {id:'nom',lbl:'اسم العائلة',type:'text',req:true,imp:'تعريف العميل'},
+    {id:'age',lbl:'الفئة العمرية',type:'radio',req:true,imp:'يحدد الأسئلة الفرعية (قاصر، متقاعد...)',
+     opts:['أقل من 18 سنة (قاصر)','18–25 سنة','26–35 سنة','36–50 سنة','51–65 سنة','أكثر من 65 سنة (متقاعد)']},
+    {id:'sexe',lbl:'الجنس',type:'radio',req:false,imp:'التوافق الإداري',opts:['ذكر','أنثى','غير محدد']},
+    {id:'nationalite',lbl:'الجنسية',type:'radio',req:true,imp:'جواز السفر والإجراءات',
+     opts:['مغربية فقط','جنسية مزدوجة (المغرب + أخرى)','أخرى (مقيم في المغرب)']},
+    {id:'ville_maroc',lbl:'مدينة الإقامة في المغرب',type:'radio',req:true,imp:'القنصلية المختصة',
+     opts:['الدار البيضاء','الرباط','فاس','مراكش','أكادير','طنجة','وجدة','مدينة أخرى']},
+    {id:'statut_civil',lbl:'الحالة العائلية',type:'radio',req:true,imp:'الارتباط بالمغرب — حتى 8 نقاط',
+     opts:['أعزب/عزباء بدون أطفال','أعزب/عزباء مع أطفال','متزوج(ة) بدون أطفال','متزوج(ة) مع أطفال','مطلق(ة)','أرمل/أرملة','في علاقة زوجية فعلية']},
+    {id:'enfants_maroc',lbl:'هل لديك أطفال قاصرون مقيمون في المغرب؟',type:'radio',req:true,imp:'+5 نقاط — ارتباط قوي',opts:['نعم','لا']},
+    {id:'conjoint_maroc',lbl:'هل سيبقى زوجك/زوجتك في المغرب خلال غيابك؟',type:'radio',req:false,imp:'+4 نقاط — ضمان العودة',
+     opts:['نعم، يبقى/تبقى في المغرب','لا، يسافر/تسافر معي','غير منطبق']},
+  ],
+  // 1
+  [
+    {id:'emploi',lbl:'وضعك المهني الحالي',type:'radio',req:true,imp:'معيار رئيسي — حتى 15 نقطة',
+     opts:['موظف في القطاع الخاص (عقد دائم CDI)','موظف في القطاع الخاص (عقد مؤقت CDD)','موظف في القطاع العام / وظيفة حكومية','تاجر مسجل','عامل مستقل / فريلانس','صاحب مقاولة ذاتية','مدير شركة / مسيّر','طالب/طالبة (تعليم عالٍ)','تلميذ/تلميذة','متقاعد(ة)','بدون عمل (باحث/ة عن عمل)','ربة/رب بيت','أخرى']},
+    {id:'anciennete',lbl:'مدة العمل في منصبك أو نشاطك الحالي',type:'radio',req:false,imp:'الاستقرار — حتى 8 نقاط',
+     opts:['أقل من 3 أشهر','3 إلى 6 أشهر','6 أشهر إلى سنة','سنة إلى 3 سنوات','أكثر من 3 سنوات','غير منطبق']},
+    {id:'secteur',lbl:'قطاع النشاط أو مجال الدراسة',type:'text',req:false,imp:'تماسك الغرض من السفر'},
+    {id:'employeur_connu',lbl:'هل صاحب عملك معروف / مرجعي؟',type:'radio',req:false,imp:'مصداقية صاحب العمل +3',
+     opts:['نعم، شركة كبرى / إدارة معروفة','نعم، مقاولة محلية معروفة','لا، هيكل صغير','غير منطبق']},
+  ],
+  // 2
+  [
+    {id:'revenu',lbl:'الدخل الشهري الصافي المُعلن (درهم)',type:'radio',req:true,imp:'معيار رئيسي — حتى 15 نقطة',
+     opts:['أقل من 3000 درهم','3000 – 5000 درهم','5000 – 8000 درهم','8000 – 15000 درهم','15000 – 25000 درهم','أكثر من 25000 درهم','دخل متغير / غير منتظم','يتكفل به شخص آخر']},
+    {id:'epargne',lbl:'المدخرات المتاحة (حساب توفير، دفتر، CCP...)',type:'radio',req:true,imp:'الملاءة — حتى 8 نقاط',
+     opts:['أقل من 3000 درهم','3000 – 10000 درهم','10000 – 25000 درهم','25000 – 50000 درهم','أكثر من 50000 درهم']},
+    {id:'releves',lbl:'حالة حسابك البنكي الرئيسي (3 أشهر الأخيرة)',type:'radio',req:true,imp:'وثيقة أساسية — حتى 6 نقاط',
+     opts:['حساب نشط، تحركات منتظمة وإيجابية','حساب نشط، لكن رصيد ضعيف أو غير منتظم','حساب مفتوح مؤخراً (أقل من 3 أشهر)','لا يوجد حساب بنكي رسمي']},
+    {id:'dettes',lbl:'هل لديك قروض أو ديون جارية؟',type:'radio',req:false,imp:'إشارة هشاشة إذا كانت مرتفعة',
+     opts:['لا، لا توجد قروض','نعم، قرض عقاري','نعم، قرض سيارة / استهلاكي','نعم، عدة قروض','نعم، وصعوبة في السداد']},
+    {id:'budget_voyage',lbl:'الميزانية الإجمالية المخصصة لهذا السفر',type:'radio',req:false,imp:'تماسك المشروع المالي',
+     opts:['أقل من 5000 درهم','5000 – 10000 درهم','10000 – 20000 درهم','20000 – 40000 درهم','أكثر من 40000 درهم','يتكفل به شخص آخر']},
+  ],
+  // 3
+  [
+    {id:'motif',lbl:'السبب الرئيسي للسفر',type:'radio',req:true,imp:'يحدد مسار France-Visas والوثائق المطلوبة',
+     opts:['سياحة / ترفيه','زيارة عائلية (عائلة في فرنسا)','زيارة صديق/صديقة في فرنسا','سفر أعمال / اجتماع مهني','مؤتمر / معرض مهني','دراسة (تسجيل جامعة/مدرسة)','تدريب مهني (عقد تدريب)','تكوين قصير (أقل من 3 أشهر)','علاج طبي','عبور فرنسا (ترانزيت)','زفاف في فرنسا','إقامة أخرى مبررة']},
+    {id:'duree',lbl:'مدة الإقامة المتوقعة',type:'radio',req:true,imp:'التوافق مع الغرض — علامة حمراء عند التناقض',
+     opts:['1 إلى 5 أيام','6 إلى 10 أيام','11 إلى 21 يوماً','22 إلى 30 يوماً','31 إلى 60 يوماً','61 إلى 90 يوماً','أكثر من 90 يوماً (تأشيرة إقامة طويلة)']},
+    {id:'destination_fr',lbl:'الوجهة/الوجهات الرئيسية في فرنسا',type:'text',req:false,imp:'تماسك المدينة/الغرض'},
+    {id:'premier_voyage',lbl:'هل هذه أول زيارة لك لفرنسا؟',type:'radio',req:true,imp:'طلب أول = أسئلة فرعية خاصة',
+     opts:['نعم، أول مرة','لا، زرت فرنسا من قبل','لا، لدي تأشيرة فرنسا سارية المفعول']},
+    {id:'aller_retour',lbl:'هل اشتريت أو حجزت تذاكر الطائرة؟',type:'radio',req:true,imp:'تذكرة العودة = دليل نية العودة +4',
+     opts:['نعم، تذاكر ذهاب وإياب محجوزة ومدفوعة','نعم، حجز فقط (غير مدفوع)','لا، لم أحجز بعد','سفر بالسيارة / القطار / الباخرة']},
+  ],
+  // 4
+  [
+    {id:'hebergement',lbl:'نوع الإقامة المخطط لها في فرنسا',type:'radio',req:true,imp:'إثبات الإقامة إلزامي — حتى 7 نقاط',
+     opts:['شهادة إيواء رسمية (عائلة/صديق)','حجز فندقي مؤكد ومدفوع','حجز فندقي غير مدفوع','إيجار Airbnb/شقة (تأكيد)','سكن جامعي / CROUS','سكن المؤسسة / الشركة (رسالة)','سكن طبي (عيادة/مستشفى)','لم يُحدد بعد']},
+    {id:'invitant_statut',lbl:'وضع المضيف (إذا كان السكن خاصاً)',type:'radio',req:false,imp:'مصداقية الدعوة',
+     opts:['مواطن/ة فرنسي/ة','مقيم/ة دائم/ة في فرنسا','حامل/ة تصريح إقامة ساري','طالب/طالبة في فرنسا','غير منطبق (فندق/سكن جامعي)']},
+    {id:'invitant_lien',lbl:'صلة القرابة مع المضيف',type:'radio',req:false,imp:'تماسك العلاقة العائلية/الاجتماعية',
+     opts:['أحد الوالدين (أب/أم/أخ/أخت/ابن/ابنة)','الزوج/الزوجة أو الشريك','جد/جدة/عم/عمة/ابن عم أو عمة','صديق/ة مقرب/ة','زميل/ة / علاقة مهنية','غير منطبق']},
+    {id:'garant_finance',lbl:'من سيتكفل بتغطية نفقات الإقامة؟',type:'radio',req:true,imp:'وضوح التغطية — حتى 8 نقاط',
+     opts:['أنا بنفسي (أموال خاصة)','عائلة في فرنسا (شهادة تكفل)','عائلة في المغرب (تحويل مخطط)','صاحب عملي في المغرب','صاحب عملي / شريكي في فرنسا','منحة / مؤسسة تعليمية','لم يُحدد بعد']},
+    {id:'assurance',lbl:'تأمين سفر طبي (30 000 € على الأقل، يغطي كامل منطقة شنغن)',type:'radio',req:true,imp:'إلزامي — مانع عند غيابه',
+     opts:['نعم، مشترك به بالفعل (وثيقة متوفرة)','نعم، مخطط له لكن لم أشترك بعد','لا']},
+  ],
+  // 5
+  [
+    {id:'hist_voyage',lbl:'هل سافرت إلى الخارج من قبل؟',type:'radio',req:true,imp:'السجل — حتى 10 نقاط',
+     opts:['نعم، عدة مرات في منطقة شنغن','نعم، مرة واحدة في منطقة شنغن','نعم، خارج شنغن (تركيا، الإمارات، أمريكا...)','نعم، في إفريقيا / الشرق الأوسط فقط','لا، لم أسافر إلى الخارج قط']},
+    {id:'visa_schengen_actif',lbl:'هل لديك تأشيرة شنغن سارية المفعول؟',type:'radio',req:true,imp:'إشارة قوية جداً +8',
+     opts:['نعم، تأشيرة شنغن سارية (غير منتهية)','نعم، منتهية منذ أقل من 12 شهراً','نعم، منتهية منذ أكثر من 12 شهراً','لا، لم يسبق أن حصلت على تأشيرة شنغن']},
+    {id:'usa_uk_visa',lbl:'هل لديك تأشيرة أمريكا أو بريطانيا أو كندا أو أستراليا؟',type:'radio',req:false,imp:'ملف مسافر مطمئن +3',
+     opts:['نعم، أمريكا أو كندا','نعم، المملكة المتحدة','نعم، أستراليا / نيوزيلندا','دولة أخرى خارج شنغن','لا']},
+    {id:'refus',lbl:'هل رُفض طلب تأشيرتك من قبل؟',type:'radio',req:true,imp:'علامة حمراء رئيسية — حتى -18 نقطة',
+     opts:['لا، لا يوجد رفض','نعم، رفض واحد (فرنسا - شنغن)','نعم، رفض من دولة شنغن أخرى','نعم، رفض خارج شنغن (أمريكا، بريطانيا...)','نعم، رفضات متعددة (2 أو أكثر)']},
+    {id:'interdiction',lbl:'هل أنت محل حظر دخول أو رفض معروف؟',type:'radio',req:true,imp:'مانع مطلق إذا نعم',
+     opts:['لا','نعم، حظر دخول فرنسا','نعم، إشعار SIS (منطقة شنغن)','لست متأكداً/ة']},
+  ],
+  // 6
+  [
+    {id:'etudiant_etablissement',lbl:'هل أنت مسجل(ة) أو مسجل(ة) مسبقاً في مؤسسة فرنسية؟',type:'radio',req:false,imp:'التسجيل = دليل أساسي للدراسة',
+     opts:['نعم، تسجيل نهائي (رسالة قبول)','نعم، تسجيل مسبق (مشروط)','لا، قيد الإجراء','غير منطبق']},
+    {id:'campus_france',lbl:'هل مررت بإجراء Campus France المغرب؟',type:'radio',req:false,imp:'إلزامي لبعض التخصصات — +5 نقاط إذا تم',
+     opts:['نعم، ملف Campus France تم التحقق منه','نعم، قيد المعالجة','لا (التخصص غير معني)','غير منطبق']},
+    {id:'bourse',lbl:'هل تستفيد من منحة دراسية أو مساعدة مالية؟',type:'radio',req:false,imp:'+5 نقاط — تمويل مطمئن',
+     opts:['نعم، منحة مغربية (AMCI، جامعة...)','نعم، منحة فرنسية (حكومية، Erasmus...)','نعم، منحة شركة / مؤسسة خاصة','لا']},
+    {id:'stage_convention',lbl:'هل لديك عقد تدريب موقع من الطرفين؟',type:'radio',req:false,imp:'وثيقة إلزامية لتأشيرة التدريب',
+     opts:['نعم، عقد تدريب موقع','لا، قيد التوقيع','غير منطبق']},
+    {id:'stage_duree',lbl:'مدة التدريب المخطط له',type:'radio',req:false,imp:'تدريب > 3 أشهر = تأشيرة إقامة طويلة ضرورية',
+     opts:['أقل من شهر','1 إلى 3 أشهر (تأشيرة قصيرة ممكنة)','3 إلى 6 أشهر (تأشيرة طويلة مطلوبة)','6 أشهر إلى سنة','أكثر من سنة','غير منطبق']},
+    {id:'logement_etudiant',lbl:'هل تم تأكيد السكن الطلابي في فرنسا؟',type:'radio',req:false,imp:'إثبات الإقامة حاسم لتأشيرة الطالب',
+     opts:['نعم، CROUS (وثيقة متوفرة)','نعم، إقامة طلابية خاصة','نعم، عند العائلة','نعم، شقة مشتركة (عقد موقع)','لا، لم يتأكد بعد','غير منطبق']},
+  ],
+  // 7
+  [
+    {id:'mineur_age_exact',lbl:'العمر الدقيق للقاصر (إذا انطبق)',type:'radio',req:false,imp:'أقل من 15 سنة = قواعد خاصة',
+     opts:['أقل من 5 سنوات','5 إلى 11 سنة','12 إلى 14 سنة','15 إلى 17 سنة','غير منطبق (بالغ)']},
+    {id:'mineur_accompagne',lbl:'هل يسافر القاصر برفقة شخص بالغ؟',type:'radio',req:false,imp:'قاصر غير مصحوب = إذن أبوي إلزامي',
+     opts:['نعم، برفقة والديه كليهما','نعم، برفقة أحد الوالدين فقط','نعم، برفقة ولي أمر قانوني','لا، يسافر وحده (قاصر غير مصحوب)','غير منطبق']},
+    {id:'mineur_autorisation',lbl:'إذن مغادرة الإقليم موقع من الوالدين (إذا سافر مع أحدهما فقط)؟',type:'radio',req:false,imp:'إلزامي — مانع عند غيابه',
+     opts:['نعم، الإذن متوفر','لا، لم يُعد بعد','الوالد الغائب متوفى / تعذر التواصل معه (وثيقة إثبات مطلوبة)','غير منطبق']},
+    {id:'mineur_passeport',lbl:'هل للقاصر جواز سفر خاص به؟',type:'radio',req:false,imp:'جواز سفر فردي إلزامي حتى للرضع',
+     opts:['نعم، جواز سفر فردي ساري','لا (مُدرج في جواز والديه — غير معترف به في الاتحاد الأوروبي)','قيد التجديد','غير منطبق']},
+    {id:'mineur_tuteur_fr',lbl:'من سيكون مسؤولاً عن القاصر في فرنسا؟',type:'radio',req:false,imp:'المسؤولية القانونية خلال الإقامة',
+     opts:['والداه (يسافران معه/معها)','أحد الوالدين (يسافر معه/معها)','عائلة في فرنسا (عم، خال، أجداد...)','مؤسسة تعليمية / مخيم','غير منطبق']},
+  ],
+  // 8
+  [
+    {id:'retraite_pension',lbl:'إذا متقاعد(ة): هل تتقاضى معاشاً تقاعدياً منتظماً؟',type:'radio',req:false,imp:'المعاش = دخل مستقر +6',
+     opts:['نعم، معاش منتظم (وثيقة متوفرة)','نعم، لكنه غير منتظم أو جزئي','لا، تقاعد غير مُصفَّى بعد','غير منطبق']},
+    {id:'retraite_biens',lbl:'هل تمتلك عقارات في المغرب (منزل، شقة، أرض)؟',type:'radio',req:false,imp:'ارتباط قوي بالمغرب +5',
+     opts:['نعم، مالك/ة عقار','نعم، عدة عقارات','لا، مستأجر/ة','غير منطبق']},
+    {id:'sans_emploi_allocation',lbl:'إذا بدون عمل: هل تتلقى تعويض البطالة أو مساعدة اجتماعية؟',type:'radio',req:false,imp:'حد أدنى من الدخل +2',
+     opts:['نعم، تعويض ANAPEC أو ما يعادله','نعم، مساعدة عائلية موثقة','لا، لا دخل مُعلن','غير منطبق']},
+    {id:'sans_emploi_charge',lbl:'إذا بدون عمل: من يموّل السفر؟',type:'radio',req:false,imp:'كفيل إلزامي في حالة عدم وجود دخل',
+     opts:['قريب في فرنسا (تكفل رسمي)','قريب في المغرب (تحويل موثق)','مدخراتي الشخصية','لا أستطيع تمويل هذا السفر','غير منطبق']},
+    {id:'foyer_charge',lbl:'إذا ربة/رب بيت: هل يمكن لشريكك إثبات دخل الأسرة؟',type:'radio',req:false,imp:'دخل الأسرة مقبول إذا كان موثقاً',
+     opts:['نعم، وثائق دخل الشريك متوفرة','جزئياً','لا','غير منطبق']},
+  ],
+  // 9
+  [
+    {id:'sponsor_type',lbl:'طبيعة الكفيل أو الضامن المالي',type:'radio',req:false,imp:'كفيل في فرنسا = إشارة قوية بشهادة رسمية',
+     opts:['لا يوجد كفيل (تمويل ذاتي)','كفيل في فرنسا (مواطن أو مقيم)','كفيل في المغرب (قريب، شركة)','صاحب عمل في فرنسا (أمر مأمورية)','مؤسسة تعليمية / جامعة','منظمة دولية / منظمة غير حكومية','غير منطبق']},
+    {id:'sponsor_doc',lbl:'هل يمكن للكفيل تقديم شهادة رسمية للتكفل؟',type:'radio',req:false,imp:'شهادة موثقة أو قنصلية +6',
+     opts:['نعم، شهادة شرف موقعة','نعم، شهادة موثقة / قنصلية','لا، التزام شفهي فقط','غير منطبق']},
+    {id:'garant_titre',lbl:'هل للكفيل في فرنسا تصريح إقامة أو الجنسية الفرنسية؟',type:'radio',req:false,imp:'الوضع القانوني للكفيل في فرنسا',
+     opts:['نعم، مواطن فرنسي','نعم، مقيم دائم (بطاقة 10 سنوات)','نعم، تصريح إقامة مؤقت ساري','لا، وضع غير نظامي','غير منطبق']},
+    {id:'garant_revenus',lbl:'هل دخل الكفيل في فرنسا كافٍ ومُثبت؟',type:'radio',req:false,imp:'القدرة المالية للكفيل — تقييم المصداقية',
+     opts:['نعم، وثائق الدخل متوفرة','متوفرة جزئياً','صعب إثباته','غير منطبق']},
+  ],
+  // 10
+  [
+    {id:'refus_nb',lbl:'عدد رفضات التأشيرة الإجمالية (جميع الدول)',type:'radio',req:false,imp:'كل رفض إضافي يزيد من المخاطر',
+     opts:['لا يوجد رفض','رفض واحد','رفضان','3 رفضات أو أكثر','غير منطبق']},
+    {id:'refus_pays',lbl:'الدول التي رفضت (إذا وجد رفض)',type:'check',req:false,imp:'رفض فرنسا/شنغن هو الأشد تأثيراً',
+     opts:['فرنسا','دولة شنغن أخرى (ألمانيا، إسبانيا، إيطاليا...)','المملكة المتحدة','الولايات المتحدة / كندا','دولة أخرى','غير منطبق']},
+    {id:'refus_motif_connu',lbl:'هل تعرف السبب الرسمي للرفض؟',type:'radio',req:false,imp:'السبب المعروف = تصحيح ممكن +3',
+     opts:['ملف ناقص أو وثيقة مفقودة','شك في نية العودة إلى المغرب','موارد غير كافية','الغرض من السفر غير موثوق','سوابق سلبية (إقامة غير نظامية...)','تناقض بين التصريحات والوثائق','لا أعرف السبب المحدد','غير منطبق']},
+    {id:'refus_action',lbl:'هل اتخذت إجراءات تصحيحية منذ الرفض؟',type:'radio',req:false,imp:'تصحيح إيجابي = إشارة حسنة +4',
+     opts:['نعم، تحسين الملف (كشوف، وثائق...)','نعم، تحسن الوضع المهني / المالي','جزئياً','لا، أول محاولة للتصحيح','غير منطبق']},
+    {id:'refus_delai',lbl:'كم مضى من الوقت منذ آخر رفض؟',type:'radio',req:false,imp:'تأخير > 6 أشهر بعد التصحيح = إعادة التقديم ممكنة',
+     opts:['أقل من 3 أشهر','3 إلى 6 أشهر','6 أشهر إلى سنة','أكثر من سنة','غير منطبق']},
+  ],
+  // 11
+  [
+    {id:'independant_registre',lbl:'هل أنت مسجل(ة) رسمياً في السجل التجاري أو ما يعادله؟',type:'radio',req:false,imp:'السجل الرسمي = شرعية مهنية +4',
+     opts:['نعم، سجل تجاري (RC)','نعم، رخصة / إذن ممارسة','لا، نشاط غير رسمي','غير منطبق']},
+    {id:'independant_anciennete',lbl:'مدة نشاطك المستقل',type:'radio',req:false,imp:'أكثر من 3 سنوات = متانة +5',
+     opts:['أقل من سنة','1 إلى 3 سنوات','أكثر من 3 سنوات','غير منطبق']},
+    {id:'independant_chiffre',lbl:'رقم الأعمال السنوي التقريبي',type:'radio',req:false,imp:'مستوى النشاط — التماسك المالي',
+     opts:['أقل من 50000 درهم','50000 – 150000 درهم','150000 – 500000 درهم','أكثر من 500000 درهم','غير منطبق']},
+    {id:'independant_liasse',lbl:'هل لديك التصريحات الضريبية (IS/IR للسنتين الأخيرتين)؟',type:'radio',req:false,imp:'وثيقة أساسية للعمال المستقلين',
+     opts:['نعم، التصريحات الضريبية متوفرة','جزئياً (سنة واحدة فقط)','لا، لم أُصرّح بعد','غير منطبق']},
+    {id:'independant_siege',lbl:'هل لديك مقر اجتماعي أو محل مهني في المغرب؟',type:'radio',req:false,imp:'ارتباط مهني = دليل على العودة',
+     opts:['نعم، محل مهني خاص','نعم، عنوان منزلي مُعلن','لا، نشاط متنقل / بدون محل ثابت','غير منطبق']},
+  ],
+  // 12
+  [
+    {id:'docs',lbl:'ضع علامة على جميع الوثائق المتوفرة لديك حالياً',type:'check',req:true,imp:'اكتمال الوثائق — حتى 20 نقطة',
+     opts:[
+       'جواز سفر ساري المفعول (ينتهي بعد 6 أشهر على الأقل من تاريخ العودة)',
+       'نموذج طلب France-Visas مكتمل ومطبوع',
+       'صور شخصية مطابقة للمعايير (تنسيق بيومتري)',
+       'شهادة عمل أو تسجيل جامعي حديثة',
+       'كشوف الراتب (3 أشهر الأخيرة)',
+       'كشوف الحساب البنكي (3 أشهر الأخيرة)',
+       'إثبات الإقامة في المغرب (أقل من 3 أشهر)',
+       'تذكرة طائرة ذهاباً وإياباً (أو حجز مؤكد)',
+       'إثبات الإقامة في فرنسا (شهادة، فندق، CROUS...)',
+       'تأمين السفر / الإخلاء الطبي (30 000 € على الأقل، منطقة شنغن)',
+       'رسالة تحفيزية للسفر مكتوبة',
+       'دعوة / شهادة إيواء رسمية',
+       'عقد الازدياد (أصل + نسخة)',
+       'مستخرج من السجل العدلي (إذا طُلب)',
+       'الوثائق الجبائية / تصريح الدخل (للعاملين المستقلين)',
+       'عقد التدريب الموقع (في حالة التدريب)',
+       'رسالة القبول من الجامعة / المدرسة (في حالة الدراسة)',
+       'شهادة Campus France مُصادق عليها (في حالة الدراسة)',
+       'إذن مغادرة الإقليم (في حالة القاصر)',
+       'جواز السفر الفردي للقاصر',
+       'شهادة التكفل من الضامن (في حالة وجود كفيل)',
+       'نسخة تصريح إقامة الكفيل (إذا كان الكفيل في فرنسا)',
+       'وصفات طبية / شهادة طبية (في حالة العلاج الطبي)'
+     ]},
+    {id:'docs_traduction',lbl:'هل بعض وثائقك مكتوبة باللغة العربية أو بلغة أجنبية (غير الفرنسية)؟',type:'radio',req:true,imp:'الترجمة القانونية المعتمدة إلزامية في فرنسا',
+     opts:['لا، جميع وثائقي بالفرنسية أو بالفرنسية+العربية','نعم، بعض الوثائق بالعربية فقط','نعم، وثائق بالأمازيغية أو لغة أخرى','غير معني']},
+    {id:'consentement',lbl:'أوافق على معالجة بياناتي لأغراض تقييم ملف التأشيرة، بسرية تامة، وفق الأحكام القانونية المعمول بها.',type:'radio',req:true,imp:'موافقة إلزامية للمتابعة',
+     opts:['أوافق','أرفض']},
+  ]
+];
+
+// WHICH BLOCKS TO SHOW based on answers
+function getActiveBlocks(){
+  var blocks=[0,1,2,3,4,5]; // always shown
+  var age=ANS.age||'';
+  var emploi=ANS.emploi||'';
+  var motif=ANS.motif||'';
+  var refus=ANS.refus||'';
+  
+  var isMineur=age.includes('18')||age.includes('أقل من 18');
+  var isEtudiant=emploi.includes('tudiant')||emploi.includes('طالب')||emploi.includes('ycéen')||emploi.includes('تلميذ')||motif.includes('tudes')||motif.includes('دراسة')||motif.includes('tage')||motif.includes('تدريب')||motif.includes('Stage');
+  var isRetraite=emploi.includes('traité')||emploi.includes('متقاعد')||emploi.includes('Sans emploi')||emploi.includes('بدون عمل')||emploi.includes('foyer')||emploi.includes('بيت');
+  var hasGarant=ANS.garant_finance&&(ANS.garant_finance.includes('France')||ANS.garant_finance.includes('فرنسا')||ANS.garant_finance.includes('sponsor')||ANS.sponsor!=='Non');
+  var hasRefus=refus&&!refus.includes('Non, aucun')&&!refus.includes('لا، لا يوجد');
+  var isIndep=emploi.includes('ndépendant')||emploi.includes('مستقل')||emploi.includes('ommerçant')||emploi.includes('تاجر')||emploi.includes('Auto-entrepreneur')||emploi.includes('مقاولة ذاتية')||emploi.includes('hef')||emploi.includes('مدير');
+
+  if(isEtudiant) blocks.push(6);
+  if(isMineur) blocks.push(7);
+  if(isRetraite) blocks.push(8);
+  if(hasGarant||ANS.sponsor_type) blocks.push(9);
+  if(hasRefus) blocks.push(10);
+  if(isIndep) blocks.push(11);
+  blocks.push(12); // always last
+  return blocks;
+}
+
+var activeBlocks=[], blockIdx=0;
+
+function init(l){
+  LANG=l;
+  ANS={};SCORE=0;blockIdx=0;
+  activeBlocks=getActiveBlocks();
+  document.getElementById('lblBack').textContent=T('back');
+  document.getElementById('lblFwd').textContent=T('fwd');
+  showS('s1');
+  renderBlock();
+}
+
+function showS(id){
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});
+  document.getElementById(id).classList.add('active');
+}
+
+var isRTL=function(){return LANG==='ar';};
+
+function renderBlock(){
+  activeBlocks=getActiveBlocks();
+  var bi=activeBlocks[blockIdx];
+  var QBLOCKS=LANG==='fr'?QBLOCKS_FR:QBLOCKS_AR;
+  var block=QBLOCKS[bi];
+  var blockName=L[LANG].blocks[bi];
+  var pct=Math.round(((blockIdx+1)/(activeBlocks.length))*100);
+  document.getElementById('pFill').style.width=pct+'%';
+  document.getElementById('stepLbl').textContent=T('step')+' '+(blockIdx+1)+' '+T('of')+' '+activeBlocks.length+' — '+blockName;
+  document.getElementById('stepPct').textContent=pct+'%';
+  document.getElementById('lblFwd').textContent=blockIdx===activeBlocks.length-1?T('calc'):T('fwd');
+  document.getElementById('btnBack').style.display=blockIdx===0?'none':'flex';
+
+  var dir=isRTL()?'dir="rtl"':'';
+  var html='<div class="card" '+dir+'><div class="section-tag">'+blockName+'</div>';
+
+  block.forEach(function(q){
+    html+='<div class="field"><label class="fl">'+q.lbl+(q.req?' <span style="color:var(--color-text-danger)">*</span>':'')+'</label>';
+    if(q.type==='text'){
+      html+='<input type="text" value="'+(ANS[q.id]||'')+'" oninput="ANS[\''+q.id+'\']=this.value" placeholder="'+(isRTL()?'أدخل إجابتك...':'Votre réponse...')+'">';
+    } else if(q.type==='select'){
+      html+='<select onchange="ANS[\''+q.id+'\']=this.value"><option value="">'+(isRTL()?'اختر...':'Choisir...')+'</option>';
+      q.opts.forEach(function(o){html+='<option value="'+esc(o)+'" '+(ANS[q.id]===o?'selected':'')+'>'+o+'</option>';});
+      html+='</select>';
+    } else if(q.type==='radio'){
+      html+='<div class="rgroup">';
+      q.opts.forEach(function(o){
+        var sel=ANS[q.id]===o;
+        html+='<div class="ropt '+(sel?'sel':'')+'" onclick="pickR(\''+q.id+'\',\''+esc(o)+'\')"><div class="rdisc"></div>'+o+'</div>';
+      });
+      html+='</div>';
+    } else if(q.type==='check'){
+      html+='<div class="cgroup">';
+      q.opts.forEach(function(o){
+        var arr=ANS[q.id]||[];
+        var sel=arr.indexOf(o)>=0;
+        html+='<div class="copt '+(sel?'sel':'')+'" onclick="pickC(\''+q.id+'\',\''+esc(o)+'\')"><div class="cbox"></div>'+o+'</div>';
+      });
+      html+='</div>';
+    }
+    html+='<div class="impact-note">'+(isRTL()?'التأثير: ':'Impact : ')+q.imp+'</div></div>';
+  });
+
+  html+='</div>';
+  document.getElementById('qZone').innerHTML=html;
+  document.getElementById('qZone').scrollTop=0;
+}
+
+function esc(s){return (s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;');}
+
+function pickR(id,val){ANS[id]=val;renderBlock();}
+
+function pickC(id,val){
+  if(!ANS[id]) ANS[id]=[];
+  var i=ANS[id].indexOf(val);
+  if(i>=0) ANS[id].splice(i,1); else ANS[id].push(val);
+  renderBlock();
+}
+
+function nextQ(){
+  activeBlocks=getActiveBlocks();
+  if(blockIdx<activeBlocks.length-1){blockIdx++;renderBlock();}
+  else{calcAndReport();}
+}
+
+function prevQ(){
+  if(blockIdx>0){blockIdx--;renderBlock();}
+}
+
+// SCORING ENGINE
+function calcAndReport(){
+  var s=0;
+  var fr=LANG==='fr';
+  // 1. Emploi (15)
+  var eMap={'Salarié(e) secteur public / fonctionnaire':15,'Fonctionnaire / Salarié secteur public':15,'Salarié(e) secteur privé (CDI)':13,'Salarié(e) secteur privé (CDD)':8,'Chef(fe) d\'entreprise / Gérant(e)':11,'Commerçant(e) inscrit(e)':9,'Travailleur(se) indépendant(e) / Freelance':8,'Auto-entrepreneur(se)':7,'Étudiant(e) (enseignement supérieur)':7,'Lycéen(ne) / Élève':5,'Retraité(e)':10,'Sans emploi (chercheur d\'emploi)':2,'Femme/Homme au foyer':4,'Autre':4,
+    'موظف في القطاع العام / وظيفة حكومية':15,'موظف في القطاع الخاص (عقد دائم CDI)':13,'موظف في القطاع الخاص (عقد مؤقت CDD)':8,'مدير شركة / مسيّر':11,'تاجر مسجل':9,'عامل مستقل / فريلانس':8,'صاحب مقاولة ذاتية':7,'طالب/طالبة (تعليم عالٍ)':7,'تلميذ/تلميذة':5,'متقاعد(ة)':10,'بدون عمل (باحث/ة عن عمل)':2,'ربة/رب بيت':4,'أخرى':4};
+  s+=eMap[ANS.emploi]||4;
+  // Ancienneté (8)
+  var aMap={'Plus de 3 ans':8,'أكثر من 3 سنوات':8,'1 à 3 ans':6,'سنة إلى 3 سنوات':6,'6 mois à 1 an':3,'6 أشهر إلى سنة':3,'3 à 6 mois':2,'3 إلى 6 أشهر':2,'Moins de 3 mois':0,'أقل من 3 أشهر':0};
+  s+=aMap[ANS.anciennete]||0;
+  // Revenu (15)
+  var rMap={'Plus de 25 000 MAD':15,'أكثر من 25000 درهم':15,'15 000 – 25 000 MAD':12,'15000 – 25000 درهم':12,'8 000 – 15 000 MAD':9,'8000 – 15000 درهم':9,'5 000 – 8 000 MAD':7,'5000 – 8000 درهم':7,'3 000 – 5 000 MAD':5,'3000 – 5000 درهم':5,'Moins de 3 000 MAD':2,'أقل من 3000 درهم':2,'Revenus variables / irréguliers':3,'دخل متغير / غير منتظم':3,'Pris(e) en charge par un tiers / sponsor':6,'يتكفل به شخص آخر':6};
+  s+=rMap[ANS.revenu]||3;
+  // Épargne (8)
+  var epMap={'Plus de 50 000 MAD':8,'أكثر من 50000 درهم':8,'25 000 – 50 000 MAD':6,'25000 – 50000 درهم':6,'10 000 – 25 000 MAD':4,'10000 – 25000 درهم':4,'3 000 – 10 000 MAD':2,'3000 – 10000 درهم':2,'Moins de 3 000 MAD':0,'أقل من 3000 درهم':0};
+  s+=epMap[ANS.epargne]||2;
+  // Relevés (6)
+  if(ANS.releves==='Compte actif, mouvements réguliers et positifs'||ANS.releves==='حساب نشط، تحركات منتظمة وإيجابية') s+=6;
+  else if(ANS.releves==='Compte actif, mais solde faible ou irrégulier'||ANS.releves==='حساب نشط، لكن رصيد ضعيف أو غير منتظم') s+=3;
+  // Historique (10)
+  var hMap={'Oui, plusieurs fois dans l\'espace Schengen':10,'نعم، عدة مرات في منطقة شنغن':10,'Oui, une fois dans l\'espace Schengen':7,'نعم، مرة واحدة في منطقة شنغن':7,'Oui, hors espace Schengen (Turquie, Emirats, USA...)':5,'نعم، خارج شنغن (تركيا، الإمارات، أمريكا...)':5,'Oui, en Afrique / Moyen-Orient uniquement':2,'نعم، في إفريقيا / الشرق الأوسط فقط':2,'Non, jamais voyagé à l\'étranger':0,'لا، لم أسافر إلى الخارج قط':0};
+  s+=hMap[ANS.hist_voyage]||0;
+  // Visa Schengen actif (8)
+  if(ANS.visa_schengen_actif==='Oui, visa Schengen actif (non expiré)'||ANS.visa_schengen_actif==='نعم، تأشيرة شنغن سارية (غير منتهية)') s+=8;
+  else if(ANS.visa_schengen_actif==='Oui, expiré il y a moins de 12 mois'||ANS.visa_schengen_actif==='نعم، منتهية منذ أقل من 12 شهراً') s+=4;
+  else if(ANS.visa_schengen_actif==='Oui, expiré il y a plus de 12 mois'||ANS.visa_schengen_actif==='نعم، منتهية منذ أكثر من 12 شهراً') s+=1;
+  // USA/UK visa bonus (3)
+  if(ANS.usa_uk_visa&&!ANS.usa_uk_visa.includes('Non')&&!ANS.usa_uk_visa.includes('لا')) s+=3;
+  // Refus (-18)
+  var rfMap={'Non, aucun refus':0,'لا، لا يوجد رفض':0,'Oui, un refus France (Schengen)':-12,'نعم، رفض واحد (فرنسا - شنغن)':-12,'Oui, un refus autre pays Schengen':-8,'نعم، رفض من دولة شنغن أخرى':-8,'Oui, un refus hors Schengen (USA, UK...)':-5,'نعم، رفض خارج شنغن (أمريكا، بريطانيا...)':-5,'Oui, plusieurs refus (2 et plus)':-18,'نعم، رفضات متعددة (2 أو أكثر)':-18};
+  s+=rfMap[ANS.refus]||0;
+  // Interdiction absolue
+  if(ANS.interdiction&&(ANS.interdiction.includes('interdiction')||ANS.interdiction.includes('SIS')||ANS.interdiction.includes('حظر')||ANS.interdiction.includes('إشعار SIS'))) s-=50;
+  // Attaches (10)
+  if(ANS.statut_civil&&(ANS.statut_civil.includes('arié')||ANS.statut_civil.includes('متزوج'))) s+=5;
+  if(ANS.enfants_maroc==='Oui'||ANS.enfants_maroc==='نعم') s+=4;
+  if(ANS.conjoint_maroc&&(ANS.conjoint_maroc.includes('reste'))||ANS.conjoint_maroc==='نعم، يبقى/تبقى في المغرب') s+=3;
+  // Immobilier retraité (5)
+  if(ANS.retraite_biens&&(ANS.retraite_biens.includes('propriétaire')||ANS.retraite_biens.includes('mالك')||ANS.retraite_biens.includes('مالك'))) s+=4;
+  // Documents (20)
+  var docs=ANS.docs||[];
+  s+=Math.min(20,Math.round(docs.length*1.55));
+  // Assurance (5)
+  if(ANS.assurance==='Oui, déjà souscrite (document disponible)'||ANS.assurance==='نعم، مشترك به بالفعل (وثيقة متوفرة)') s+=5;
+  else if(ANS.assurance==='Oui, prévue mais pas encore souscrite'||ANS.assurance==='نعم، مخطط له لكن لم أشترك بعد') s+=2;
+  // Hébergement (7)
+  if(ANS.hebergement&&(ANS.hebergement.includes('Attestation')||ANS.hebergement.includes('شهادة إيواء')||ANS.hebergement.includes('CROUS')||ANS.hebergement.includes('Réservation hôtel confirmée')||ANS.hebergement.includes('حجز فندقي مؤكد'))) s+=7;
+  else if(ANS.hebergement&&!ANS.hebergement.includes('défini')&&!ANS.hebergement.includes('حُدد')) s+=4;
+  // Garant fort en France (5)
+  if(ANS.garant_titre&&(ANS.garant_titre.includes('citoyen'))||ANS.garant_titre==='نعم، مواطن فرنسي') s+=4;
+  if(ANS.sponsor_doc&&(ANS.sponsor_doc.includes('notariée')||ANS.sponsor_doc==='نعم، شهادة موثقة / قنصلية')) s+=3;
+  // Campus France (5)
+  if(ANS.campus_france&&(ANS.campus_france.includes('validé')||ANS.campus_france==='نعم، ملف Campus France تم التحقق منه')) s+=5;
+  // Bourse (5)
+  if(ANS.bourse&&!ANS.bourse.includes('Non')&&!ANS.bourse.includes('لا')) s+=4;
+  // Indep solide (6)
+  if(ANS.independant_registre&&(ANS.independant_registre.includes('registre')||ANS.independant_registre==='نعم، سجل تجاري (RC)')) s+=3;
+  if(ANS.independant_liasse&&(ANS.independant_liasse.includes('disponibles')||ANS.independant_liasse==='نعم، التصريحات الضريبية متوفرة')) s+=3;
+  // Refus correction (4)
+  if(ANS.refus_action&&(ANS.refus_action.includes('dossier amélioré')||ANS.refus_action==='نعم، تحسين الملف (كشوف، وثائق...)')) s+=4;
+  // Aller retour (4)
+  if(ANS.aller_retour&&(ANS.aller_retour.includes('aller-retour')||ANS.aller_retour==='نعم، تذاكر ذهاب وإياب محجوزة ومدفوعة')) s+=4;
+  // Traduction warning (no pts but flag)
+  // Minor: autorisation (3)
+  if(ANS.mineur_autorisation&&(ANS.mineur_autorisation.includes('disponible')||ANS.mineur_autorisation==='نعم، الإذن متوفر')) s+=3;
+
+  SCORE=Math.max(0,Math.min(100,Math.round(s)));
+  buildReport();
+}
+
+function lvl(sc){
+  var fr=LANG==='fr';
+  if(sc>=90) return {lbl:fr?'Très solide':'ممتاز جداً',cls:'b-ok',col:'#059669'};
+  if(sc>=75) return {lbl:fr?'Solide':'قوي',cls:'b-ok',col:'#16a34a'};
+  if(sc>=60) return {lbl:fr?'Moyen / améliorable':'متوسط / قابل للتحسين',cls:'b-warn',col:'#d97706'};
+  if(sc>=40) return {lbl:fr?'Fragile':'هش',cls:'b-warn',col:'#f59e0b'};
+  return {lbl:fr?'Très faible':'ضعيف جداً',cls:'b-danger',col:'#dc2626'};
+}
+
+var ALL_DOCS_FR=['Passeport valide (expire au moins 6 mois après la date de retour)','Formulaire de demande France-Visas complété et imprimé','Photos d\'identité conformes aux normes (format biométrique)','Attestation d\'emploi ou de scolarité récente','Bulletins de salaire (3 derniers mois)','Relevés de compte bancaire (3 derniers mois)','Justificatif de domicile au Maroc (moins de 3 mois)','Billet d\'avion aller-retour (ou réservation confirmée)','Preuve d\'hébergement en France (attestation, hôtel, CROUS...)','Assurance voyage / rapatriement (30 000 € min., espace Schengen)','Lettre de motivation du voyage rédigée','Invitation / Attestation d\'hébergement officielle'];
+var ALL_DOCS_AR=['جواز سفر ساري المفعول (ينتهي بعد 6 أشهر على الأقل من تاريخ العودة)','نموذج طلب France-Visas مكتمل ومطبوع','صور شخصية مطابقة للمعايير (تنسيق بيومتري)','شهادة عمل أو تسجيل جامعي حديثة','كشوف الراتب (3 أشهر الأخيرة)','كشوف الحساب البنكي (3 أشهر الأخيرة)','إثبات الإقامة في المغرب (أقل من 3 أشهر)','تذكرة طائرة ذهاباً وإياباً (أو حجز مؤكد)','إثبات الإقامة في فرنسا (شهادة، فندق، CROUS...)','تأمين السفر / الإخلاء الطبي (30 000 € على الأقل، منطقة شنغن)','رسالة تحفيزية للسفر مكتوبة','دعوة / شهادة إيواء رسمية'];
+
+function buildReport(){
+  var fr=LANG==='fr';
+  var lv=lvl(SCORE);
+  var docs=ANS.docs||[];
+  var ALL_DOCS=fr?ALL_DOCS_FR:ALL_DOCS_AR;
+  var missing=ALL_DOCS.filter(function(d){return docs.indexOf(d)<0;});
+
+  var pf=[],pw=[],flags_r=[],flags_o=[];
+  if(fr){
+    if(ANS.emploi&&!ANS.emploi.includes('Sans emploi')&&!ANS.emploi.includes('foyer')) pf.push('Situation professionnelle stable déclarée');
+    if(ANS.visa_schengen_actif&&ANS.visa_schengen_actif.includes('actif')) pf.push('Visa Schengen actif — signal très positif');
+    if(ANS.hist_voyage&&ANS.hist_voyage.includes('plusieurs')) pf.push('Historique de voyages multiples dans l\'espace Schengen');
+    if(docs.length>=9) pf.push('Dossier documentaire bien constitué ('+docs.length+' pièces)');
+    if(ANS.statut_civil&&ANS.statut_civil.includes('arié')) pf.push('Situation matrimoniale = ancrage fort au Maroc');
+    if(ANS.enfants_maroc==='Oui') pf.push('Enfants mineurs au Maroc = preuve de retour');
+    if(ANS.assurance&&ANS.assurance.includes('souscrite')) pf.push('Assurance voyage déjà souscrite');
+    if(ANS.campus_france&&ANS.campus_france.includes('validé')) pf.push('Dossier Campus France validé');
+    if(ANS.bourse&&!ANS.bourse.includes('Non')) pf.push('Bourse ou financement institutionnel = crédibilité ++');
+    if(ANS.independant_registre&&ANS.independant_registre.includes('registre')) pf.push('Enregistrement professionnel officiel');
+    if(ANS.aller_retour&&ANS.aller_retour.includes('achetés')) pf.push('Billets aller-retour achetés');
+    if(ANS.retraite_biens&&ANS.retraite_biens.includes('propriétaire')) pf.push('Propriétaire immobilier au Maroc = ancrage solide');
+    if(ANS.usa_uk_visa&&!ANS.usa_uk_visa.includes('Non')) pf.push('Visa USA/UK/Canada — profil voyageur rassurant');
+
+    if(ANS.refus&&!ANS.refus.includes('aucun')){flags_r.push('Antécédent(s) de refus de visa — à justifier');pw.push('Antécédent de refus : expliquer les mesures correctives prises');}
+    if(ANS.interdiction&&!ANS.interdiction.includes('Non')){flags_r.push('BLOQUANT : Interdiction de territoire ou signalement SIS détecté');}
+    if(missing.length>=5) pw.push(missing.length+' documents de base manquants à préparer en priorité');
+    if(ANS.releves&&!ANS.releves.includes('actif')) flags_o.push('Relevés bancaires insuffisants ou inexistants');
+    if(ANS.emploi&&ANS.emploi.includes('Sans emploi')){flags_r.push('Absence d\'emploi = risque majeur sur intention de retour');}
+    if(ANS.assurance==='Non'){flags_r.push('Assurance voyage ABSENTE — document OBLIGATOIRE');}
+    if(ANS.hebergement&&ANS.hebergement.includes('défini')) flags_o.push('Hébergement non défini — à confirmer avant dépôt');
+    if(ANS.mineur_autorisation&&!ANS.mineur_autorisation.includes('disponible')&&ANS.mineur_autorisation!=='Non applicable') flags_r.push('Autorisation de sortie du mineur non disponible');
+    if(ANS.mineur_passeport&&ANS.mineur_passeport.includes('inscrit')) flags_r.push('Mineur inscrit sur passeport parental — NON valide UE');
+    if(ANS.campus_france&&ANS.campus_france.includes('en cours')) flags_o.push('Dossier Campus France en cours — à finaliser');
+    if(ANS.stage_convention&&!ANS.stage_convention.includes('signée')) flags_o.push('Convention de stage non encore signée');
+    if(ANS.independant_liasse&&ANS.independant_liasse.includes('Non')) flags_r.push('Liasses fiscales absentes — document clé pour indépendants');
+    if(ANS.docs_traduction&&ANS.docs_traduction.includes('arabe uniquement')) flags_o.push('Documents en arabe uniquement → traduction assermentée en français obligatoire');
+    if(ANS.sans_emploi_charge&&ANS.sans_emploi_charge.includes('incapacité')) flags_r.push('Incapacité déclarée à financer le voyage — sponsor obligatoire');
+    if(ANS.revenu&&ANS.revenu.includes('Moins de 3 000')) flags_o.push('Revenus très faibles — renforcer les justificatifs bancaires et sponsor');
+  } else {
+    if(ANS.emploi&&!ANS.emploi.includes('بدون عمل')) pf.push('وضع مهني مُعلن ومستقر');
+    if(ANS.visa_schengen_actif&&ANS.visa_schengen_actif.includes('سارية')) pf.push('تأشيرة شنغن سارية — إشارة إيجابية جداً');
+    if(ANS.hist_voyage&&ANS.hist_voyage.includes('عدة')) pf.push('سجل سفريات متعددة في منطقة شنغن');
+    if(docs.length>=9) pf.push('ملف وثائقي جيد ('+docs.length+' وثيقة)');
+    if(ANS.statut_civil&&ANS.statut_civil.includes('متزوج')) pf.push('الوضع الزوجي = ارتباط قوي بالمغرب');
+    if(ANS.enfants_maroc==='نعم') pf.push('أطفال قاصرون في المغرب = ضمان العودة');
+    if(ANS.assurance&&ANS.assurance.includes('مشترك')) pf.push('تأمين السفر مشترك به بالفعل');
+    if(ANS.campus_france&&ANS.campus_france.includes('تم التحقق')) pf.push('ملف Campus France تم التحقق منه');
+    if(ANS.bourse&&!ANS.bourse.includes('لا')) pf.push('منحة أو تمويل مؤسسي = مصداقية عالية');
+    if(ANS.independant_registre&&ANS.independant_registre.includes('سجل تجاري')) pf.push('تسجيل مهني رسمي');
+    if(ANS.aller_retour&&ANS.aller_retour.includes('مدفوعة')) pf.push('تذاكر ذهاب وإياب محجوزة ومدفوعة');
+    if(ANS.retraite_biens&&ANS.retraite_biens.includes('مالك')) pf.push('ملكية عقارية في المغرب = ارتباط متين');
+    if(ANS.usa_uk_visa&&!ANS.usa_uk_visa.includes('لا')) pf.push('تأشيرة أمريكا/بريطانيا/كندا — ملف مسافر مطمئن');
+
+    if(ANS.refus&&!ANS.refus.includes('لا يوجد')){flags_r.push('سوابق رفض تأشيرة — يجب التوضيح');pw.push('سابقة رفض: توضيح الإجراءات التصحيحية المتخذة');}
+    if(ANS.interdiction&&!ANS.interdiction.includes('لا')){flags_r.push('مانع مطلق: حظر دخول أو إشعار SIS');}
+    if(missing.length>=5) pw.push(missing.length+' وثائق أساسية ناقصة يجب تحضيرها أولاً');
+    if(ANS.releves&&!ANS.releves.includes('نشط')) flags_o.push('كشوف بنكية غير كافية أو غائبة');
+    if(ANS.emploi&&ANS.emploi.includes('بدون عمل')) flags_r.push('غياب العمل = خطر رئيسي على نية العودة');
+    if(ANS.assurance==='لا') flags_r.push('تأمين السفر غائب — وثيقة إلزامية');
+    if(ANS.hebergement&&ANS.hebergement.includes('حُدد')) flags_o.push('الإقامة غير محددة — يجب التأكيد قبل التقديم');
+    if(ANS.mineur_autorisation&&!ANS.mineur_autorisation.includes('متوفر')&&ANS.mineur_autorisation!=='غير منطبق') flags_r.push('إذن مغادرة القاصر غير متوفر');
+    if(ANS.docs_traduction&&ANS.docs_traduction.includes('العربية فقط')) flags_o.push('وثائق بالعربية فقط → ترجمة قانونية معتمدة بالفرنسية إلزامية');
+    if(ANS.sans_emploi_charge&&ANS.sans_emploi_charge.includes('لا أستطيع')) flags_r.push('عدم القدرة على تمويل السفر — كفيل إلزامي');
+    if(ANS.revenu&&ANS.revenu.includes('أقل من 3000')) flags_o.push('دخل ضعيف جداً — تقوية المستندات البنكية والكفيل');
+  }
+
+  var packRec=SCORE>=75?(fr?'Pack 3 — Suivi Premium':'الباقة 3 — المتابعة المميزة'):SCORE>=50?(fr?'Pack 2 — Accompagnement':'الباقة 2 — المرافقة'):(fr?'Pack 1 — Test & Conseils':'الباقة 1 — الاختبار والنصائح');
+  var scoreIdx=SCORE>=75?2:SCORE>=50?1:0;
+
+  var dir=isRTL()?'dir="rtl"':'';
+  var html='<div '+dir+'>';
+
+  // Score card
+  html+='<div class="card" style="text-align:center">';
+  html+='<div class="score-ring" style="border-color:'+lv.col+';color:'+lv.col+'">';
+  html+='<div style="font-size:30px;font-weight:600">'+SCORE+'</div>';
+  html+='<div style="font-size:11px;color:var(--color-text-secondary)">/100</div></div>';
+  html+='<span class="badge '+lv.cls+'">'+lv.lbl+'</span>';
+  html+='<p style="margin-top:.5rem;font-size:12px">'+ANS.prenom+' '+ANS.nom+' — '+(ANS.motif||'Visa France')+'</p>';
+  html+='</div>';
+
+  // Flags rouges
+  if(flags_r.length){
+    html+='<div class="card card-warn"><h3 style="color:var(--color-text-danger)">⛔ '+(fr?'Points bloquants':'نقاط مانعة')+'</h3>';
+    flags_r.forEach(function(f){html+='<div class="flag"><div class="dot dr"></div>'+f+'</div>';});
+    html+='</div>';
+  }
+
+  // Points forts
+  html+='<div class="card"><h3>'+(fr?'Points forts du dossier':'نقاط قوة الملف')+'</h3>';
+  if(pf.length) pf.forEach(function(f){html+='<div class="flag"><div class="dot dg"></div>'+f+'</div>';});
+  else html+='<p>'+(fr?'Peu de points forts identifiés — renforcement recommandé.':'نقاط قوة قليلة — يُنصح بالتقوية.')+'</p>';
+  html+='</div>';
+
+  // Points faibles
+  if(pw.length||flags_o.length){
+    html+='<div class="card"><h3>'+(fr?'Points à améliorer':'نقاط تحتاج تحسيناً')+'</h3>';
+    pw.forEach(function(f){html+='<div class="flag"><div class="dot dr"></div>'+f+'</div>';});
+    flags_o.forEach(function(f){html+='<div class="flag"><div class="dot do"></div>'+f+'</div>';});
+    html+='</div>';
+  }
+
+  // Docs manquants
+  if(missing.length){
+    html+='<div class="card"><h3>'+(fr?'Documents manquants (essentiels)':'الوثائق الناقصة الأساسية')+'</h3>';
+    missing.slice(0,8).forEach(function(d){html+='<div class="flag"><div class="dot do"></div>'+d+'</div>';});
+    if(missing.length>8) html+='<p style="font-size:11px;margin-top:6px">'+(fr?'+ '+(missing.length-8)+' autres...':'+ '+(missing.length-8)+' أخرى...')+'</p>';
+    html+='</div>';
+  }
+
+  // Recommandation
+  html+='<div class="card card-info" style="border-color:var(--color-border-info)">';
+  html+='<h3>'+(fr?'Pack recommandé pour vous':'الباقة الموصى بها لك')+'</h3>';
+  html+='<p style="font-size:15px;font-weight:600;color:var(--color-text-info);margin:.25rem 0">'+packRec+'</p>';
+  html+='<p>'+(fr?'Basé sur votre score de '+SCORE+'/100 et votre profil détaillé.':'بناءً على نتيجتك '+SCORE+'/100 وملفك التفصيلي.')+'</p>';
+  html+='</div>';
+
+  html+='<div class="disc">'+(fr?'⚖️ Ce rapport est indicatif et ne constitue pas un avis juridique. Il ne garantit pas l\'obtention du visa. La décision finale appartient exclusivement aux autorités consulaires françaises. Vérifiez toujours les exigences officielles sur france-visas.gouv.fr, tlscontact.com et, pour les étudiants, maroc.campusfrance.org.':'⚖️ هذا التقرير إرشادي ولا يمثل استشارة قانونية. لا يضمن الحصول على التأشيرة. القرار النهائي يعود حصراً للسلطات القنصلية الفرنسية. تحقق دائماً من المتطلبات الرسمية على france-visas.gouv.fr وtlscontact.com وللطلاب maroc.campusfrance.org.')+'</div>';
+
+  html+='<div class="nav-btns" style="flex-wrap:wrap;gap:8px">';
+  html+='<button class="btn btn-p" onclick="buildPacks('+scoreIdx+')"> '+(fr?'Voir les packs':'عرض الباقات')+' →</button>';
+  html+='<button class="btn" onclick="buildWA()"> '+(fr?'WhatsApp':'واتساب')+'</button>';
+  html+='<button class="btn" onclick="buildJSON()"> JSON</button>';
+  html+='</div></div>';
+
+  document.getElementById('rZone').innerHTML=html;
+  showS('s2');
+}
+
+function buildPacks(recIdx){
+  var fr=LANG==='fr';
+  var dir=isRTL()?'dir="rtl"':'';
+  var packs=fr?[
+    {name:'Pack 1 — Test & Conseils',prix:'Offert',sub:'Découverte',desc:'Idéal pour prendre conscience de votre niveau de préparation et des points à corriger avant toute démarche.',items:['Questionnaire complet adaptatif','Score sur 100 avec niveau','Analyse personnalisée','Identification des documents manquants','Conseils ciblés selon profil et motif','Rapport téléchargeable'],cta:'Déjà complété — résultats disponibles'},
+    {name:'Pack 2 — Accompagnement',prix:'À partir de 299 MAD',sub:'Recommandé',desc:'Pour préparer votre dossier complet avec un expert, réduire les risques de refus et maximiser vos chances.',items:['Tout le Pack 1','Aide au remplissage du formulaire France-Visas','Liste personnalisée et vérification des justificatifs','Vérification de cohérence globale du dossier','Modèle de lettre de motivation adaptée','Aide à la prise de RDV TLScontact','Alerte sur les documents à traduire'],cta:'Choisir ce pack'},
+    {name:'Pack 3 — Suivi Premium',prix:'À partir de 599 MAD',sub:'Complet',desc:'Accompagnement de A à Z jusqu\'au dépôt du dossier, avec suivi actif et assistance au jour du rendez-vous.',items:['Tout le Pack 2','Suivi actif de l\'avancement de votre dossier','Alerte dès l\'ouverture des créneaux TLScontact','Validation finale et relecture complète du dossier','Checklist jour J + briefing rendez-vous','Support WhatsApp dédié 7j/7 jusqu\'au RDV'],cta:'Choisir ce pack'}
+  ]:[
+    {name:'الباقة 1 — الاختبار والنصائح',prix:'مجانية',sub:'للاكتشاف',desc:'مثالية لمعرفة مستوى تحضيرك والنقاط الواجب تصحيحها قبل أي إجراء.',items:['استبيان شامل وتكيّفي','نتيجة من 100 مع المستوى','تحليل مخصص','تحديد الوثائق الناقصة','نصائح مستهدفة حسب الملف والغرض','تقرير قابل للتحميل'],cta:'مكتملة بالفعل — النتائج متاحة'},
+    {name:'الباقة 2 — المرافقة',prix:'ابتداءً من 299 درهم',sub:'موصى بها',desc:'لإعداد ملفك الكامل مع خبير، وتقليل مخاطر الرفض وزيادة فرص النجاح.',items:['كل محتوى الباقة 1','مساعدة في ملء نموذج France-Visas','قائمة مخصصة والتحقق من الوثائق','التحقق من التماسك الكلي للملف','نموذج رسالة تحفيزية مكيّفة','مساعدة في حجز موعد TLScontact','تنبيه بالوثائق التي تحتاج ترجمة'],cta:'اختيار هذه الباقة'},
+    {name:'الباقة 3 — المتابعة المميزة',prix:'ابتداءً من 599 درهم',sub:'الأكثر شمولاً',desc:'مرافقة من الألف إلى الياء حتى تقديم الملف، مع متابعة نشطة ومساعدة يوم الموعد.',items:['كل محتوى الباقة 2','متابعة نشطة لتقدم ملفك','تنبيه فور فتح خانات TLScontact','التحقق والمراجعة النهائية الكاملة للملف','قائمة تدقيق اليوم J + إحاطة الموعد','دعم واتساب مخصص 7 أيام/7 حتى الموعد'],cta:'اختيار هذه الباقة'}
+  ];
+
+  var html='<div '+dir+'>';
+  html+='<h2 style="margin-bottom:.25rem">'+(fr?'Nos packs d\'accompagnement':'باقاتنا الترافقية')+'</h2>';
+  html+='<p style="margin-bottom:1.25rem">'+(fr?'Score : '+SCORE+'/100 — Pack recommandé : '+packs[recIdx].name:'النتيجة : '+SCORE+'/100 — الباقة الموصى بها : '+packs[recIdx].name)+'</p>';
+  packs.forEach(function(p,i){
+    html+='<div class="pack-card '+(i===recIdx?'pack-feat':'')+'">';
+    if(i===recIdx) html+='<span class="badge b-info" style="margin-bottom:8px;display:inline-block">'+(fr?'Recommandé pour vous':'موصى بها لك')+'</span>';
+    html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:.35rem">';
+    html+='<h3>'+p.name+'</h3><div><div class="pack-price">'+p.prix+'</div><span class="badge b-ok" style="font-size:10px">'+p.sub+'</span></div></div>';
+    html+='<p style="margin-bottom:.75rem">'+p.desc+'</p>';
+    p.items.forEach(function(it){html+='<div class="checklist-item"><div class="dot dg"></div>'+it+'</div>';});
+    html+='<button class="btn btn-p btn-full" style="margin-top:.875rem" onclick="alert(\''+p.cta+'\')">'+(fr?p.cta===packs[0].cta?p.cta:'Choisir ce pack':p.cta===packs[0].cta?p.cta:'اختيار هذه الباقة')+'</button>';
+    html+='</div>';
+  });
+  html+='<div class="nav-btns"><button class="btn" onclick="showS(\'s2\')">'+(fr?'← Rapport':'← التقرير')+'</button>';
+  html+='<button class="btn btn-p" onclick="buildWA()">'+(fr?'WhatsApp →':'واتساب →')+'</button></div></div>';
+  document.getElementById('pkZone').innerHTML=html;
+  showS('s3');
+}
+
+function buildWA(){
+  var fr=LANG==='fr';
+  var lv=lvl(SCORE);
+  var docs=ANS.docs||[];
+  var ALL_DOCS=fr?ALL_DOCS_FR:ALL_DOCS_AR;
+  var missing=ALL_DOCS.filter(function(d){return docs.indexOf(d)<0;}).slice(0,3);
+  var pf_short=[];
+  if(ANS.emploi&&!ANS.emploi.includes('Sans emploi')&&!ANS.emploi.includes('بدون عمل')) pf_short.push(fr?'Situation professionnelle : '+ANS.emploi:'الوضع المهني: '+ANS.emploi);
+  if(ANS.visa_schengen_actif&&(ANS.visa_schengen_actif.includes('actif')||ANS.visa_schengen_actif.includes('سارية'))) pf_short.push(fr?'Visa Schengen actif':'تأشيرة شنغن سارية');
+  if(docs.length>0) pf_short.push(fr?docs.length+' documents disponibles':docs.length+' وثائق متوفرة');
+
+  var packRec=SCORE>=75?(fr?'Pack 3 — Suivi Premium':'الباقة 3 — المتابعة المميزة'):SCORE>=50?(fr?'Pack 2 — Accompagnement':'الباقة 2 — المرافقة'):(fr?'Pack 1 — Test & Conseils':'الباقة 1 — الاختبار والنصائح');
+
+  var msgFR='Bonjour '+ANS.prenom+' 👋\n\nSuite à votre évaluation visa France, voici votre résumé :\n\n📊 *Score : '+SCORE+'/100 — '+lv.lbl+'*\n🎯 Motif : '+(ANS.motif||'Non précisé')+'\n📍 Ville : '+(ANS.ville_maroc||'Non précisée')+'\n\n✅ *Points forts :*\n'+(pf_short.length?pf_short.map(function(p){return '• '+p;}).join('\n'):'• Peu de points forts identifiés')+'\n\n⚠️ *Priorités avant dépôt :*\n'+(missing.length?missing.map(function(d){return '• '+d;}).join('\n'):'• Dossier bien avancé')+'\n'+(ANS.assurance==='Non'?'• ⛔ Assurance voyage obligatoire — non souscrite\n':'')+'\n📦 *Notre recommandation : '+packRec+'*\n\nContactez-nous pour avancer sur votre dossier. Nous sommes à votre disposition 🤝\n\n_Ce service prépare votre dossier. Il ne garantit pas l\'obtention du visa. La décision appartient aux autorités consulaires françaises._';
+
+  var msgAR='مرحباً '+ANS.prenom+' 👋\n\nبعد تقييم ملف التأشيرة، إليك ملخص نتائجك:\n\n📊 *النتيجة: '+SCORE+'/100 — '+lv.lbl+'*\n🎯 الغرض: '+(ANS.motif||'غير محدد')+'\n📍 المدينة: '+(ANS.ville_maroc||'غير محددة')+'\n\n✅ *نقاط القوة:*\n'+(pf_short.length?pf_short.map(function(p){return '• '+p;}).join('\n'):'• نقاط قوة قليلة')+'\n\n⚠️ *الأولويات قبل التقديم:*\n'+(missing.length?missing.map(function(d){return '• '+d;}).join('\n'):'• الملف في مرحلة متقدمة')+'\n'+(ANS.assurance==='لا'?'• ⛔ تأمين السفر إلزامي — لم يُشترك به\n':'')+'\n📦 *توصيتنا: '+packRec+'*\n\nتواصل معنا للمضي قدماً في ملفك 🤝\n\n_هذه الخدمة تُحضّر ملفك ولا تضمن الحصول على التأشيرة. القرار للسلطات القنصلية الفرنسية._';
+
+  var dir=isRTL()?'dir="rtl"':'';
+  var html='<div '+dir+'>';
+  html+='<h2 style="margin-bottom:.25rem">'+(fr?'Message WhatsApp':'رسالة واتساب')+'</h2>';
+  html+='<p style="margin-bottom:.875rem">'+(fr?'Copiez et envoyez à votre client.':'انسخ وأرسل لعميلك.')+'</p>';
+  html+='<div class="tab-row"><div class="tab act" id="t1" onclick="swTab(1)">Français</div><div class="tab" id="t2" onclick="swTab(2)">العربية</div></div>';
+  html+='<div class="wa-pre" id="waMsg">'+msgFR+'</div>';
+  html+='<button class="btn btn-p" style="margin-top:.75rem" onclick="cpWA()">'+(fr?'Copier le message':'نسخ الرسالة')+'</button>';
+  html+='<div class="nav-btns"><button class="btn" onclick="showS(\'s3\')">'+(fr?'← Packs':'← الباقات')+'</button><button class="btn btn-p" onclick="buildJSON()">JSON →</button></div></div>';
+  document.getElementById('waZone').innerHTML=html;
+
+  window._waFR=msgFR;window._waAR=msgAR;
+  showS('s4');
+}
+function swTab(n){
+  document.getElementById('t1').classList.toggle('act',n===1);
+  document.getElementById('t2').classList.toggle('act',n===2);
+  var msg=n===1?window._waFR:window._waAR;
+  document.getElementById('waMsg').textContent=msg;
+  document.getElementById('waMsg').className='wa-pre'+(n===2?' rtl':'');
+}
+function cpWA(){
+  var txt=document.getElementById('waMsg').textContent;
+  navigator.clipboard.writeText(txt).then(function(){alert(LANG==='fr'?'Copié !':'تم النسخ!');}).catch(function(){});
+}
+
+function buildJSON(){
+  var fr=LANG==='fr';
+  var id='CLI-'+Date.now().toString(36).toUpperCase();
+  var lv=lvl(SCORE);
+  var obj={
+    client_id:id,langue:LANG,date_evaluation:new Date().toISOString().split('T')[0],
+    prenom:ANS.prenom||'',nom:ANS.nom||'',age:ANS.age||'',sexe:ANS.sexe||'',
+    nationalite:ANS.nationalite||'',ville:ANS.ville_maroc||'',statut_civil:ANS.statut_civil||'',
+    enfants_maroc:ANS.enfants_maroc||'',conjoint_maroc:ANS.conjoint_maroc||'',
+    emploi:ANS.emploi||'',anciennete:ANS.anciennete||'',secteur:ANS.secteur||'',
+    revenu:ANS.revenu||'',epargne:ANS.epargne||'',releves:ANS.releves||'',dettes:ANS.dettes||'',
+    motif:ANS.motif||'',duree:ANS.duree||'',destination:ANS.destination_fr||'',
+    aller_retour:ANS.aller_retour||'',hebergement:ANS.hebergement||'',garant:ANS.garant_finance||'',
+    assurance:ANS.assurance||'',hist_voyage:ANS.hist_voyage||'',
+    visa_schengen_actif:ANS.visa_schengen_actif||'',usa_uk_visa:ANS.usa_uk_visa||'',
+    refus:ANS.refus||'',interdiction:ANS.interdiction||'',
+    cas_etudiant:{campus_france:ANS.campus_france||'',bourse:ANS.bourse||'',etablissement:ANS.etudiant_etablissement||'',convention_stage:ANS.stage_convention||'',duree_stage:ANS.stage_duree||''},
+    cas_mineur:{age_exact:ANS.mineur_age_exact||'',accompagne:ANS.mineur_accompagne||'',autorisation:ANS.mineur_autorisation||'',passeport:ANS.mineur_passeport||''},
+    cas_sponsor:{type:ANS.sponsor_type||'',doc:ANS.sponsor_doc||'',titre:ANS.garant_titre||''},
+    cas_refus:{nb:ANS.refus_nb||'',motif:ANS.refus_motif_connu||'',action:ANS.refus_action||'',delai:ANS.refus_delai||''},
+    cas_independant:{registre:ANS.independant_registre||'',anciennete:ANS.independant_anciennete||'',liasse:ANS.independant_liasse||''},
+    documents:ANS.docs||[],docs_traduction:ANS.docs_traduction||'',
+    score:SCORE,niveau:lv.lbl,statut:'Évaluation initiale',pack_choisi:'',
+    consentement:ANS.consentement||'',notes:''
+  };
+  var dir=isRTL()?'dir="rtl"':'';
+  var html='<div '+dir+'>';
+  html+='<h2 style="margin-bottom:.25rem">'+(fr?'Export données client':'تصدير بيانات العميل')+'</h2>';
+  html+='<p style="margin-bottom:.875rem">'+(fr?'Collez dans Airtable, Google Sheets, Notion ou votre CRM.':'الصق في Airtable أو Google Sheets أو Notion أو CRM.')+'</p>';
+  html+='<div class="json-box" id="jb">'+JSON.stringify(obj,null,2)+'</div>';
+  html+='<button class="btn btn-p" style="margin-top:.75rem" onclick="cpJ()">'+(fr?'Copier JSON':'نسخ JSON')+'</button>';
+  html+='<div class="nav-btns"><button class="btn" onclick="showS(\'s4\')">'+(fr?'← WhatsApp':'← واتساب')+'</button><button class="btn btn-p" onclick="showS(\'s2\')">'+(fr?'Rapport':'التقرير')+'</button></div>';
+  html+='<div class="disc">'+(fr?'Les données ne sont pas transmises automatiquement. Copiez le JSON et collez-le dans votre outil de gestion.':'البيانات لا تُرسل تلقائياً. انسخ JSON وألصقه في أداة إدارتك.')+'</div></div>';
+  document.getElementById('jsZone').innerHTML=html;
+  showS('s5');
+}
+function cpJ(){
+  navigator.clipboard.writeText(document.getElementById('jb').textContent).then(function(){alert(LANG==='fr'?'JSON copié!':'تم نسخ JSON!');}).catch(function(){});
+}
+</script>
