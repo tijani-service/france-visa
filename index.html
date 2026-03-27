@@ -1021,9 +1021,43 @@ function buildReport(){
   document.getElementById('rZone').innerHTML=html;
   showS('s2');
   //Ayat
+/** if (Array.isArray(ANS.docs)) {
+//    ANS.docs = ANS.docs.join(", ");
+}**/
+
+/**if (Array.isArray(ANS.refus_pays)) {
+    ANS.refus_pays = ANS.refus_pays.join(", ");
+}**/
+//Ayat
  console.log(ANS);
  // ENVOI GOOGLE SHEET
-    envoyerVersGoogleSheet(ANS);
+ const dataClean = prepareDataForSheet(ANS);
+ envoyerVersGoogleSheet(dataClean);
+}
+//Ayat
+function prepareDataForSheet(data) {
+    let clean = {};
+
+    Object.keys(data).forEach(key => {
+        let value = data[key];
+
+        // convertir tableaux → texte
+        if (Array.isArray(value)) {
+            value = value.join(", ");
+        }
+
+        // convertir objets → JSON string
+        if (typeof value === "object" && value !== null) {
+            value = JSON.stringify(value);
+        }
+
+        clean[key] = value || "";
+    });
+
+    // ajouter date
+    clean.date = new Date().toISOString();
+
+    return clean;
 }
 
 function buildPacks(recIdx){
@@ -1121,7 +1155,7 @@ function buildJSON(){
     cas_sponsor:{type:ANS.sponsor_type||'',doc:ANS.sponsor_doc||'',titre:ANS.garant_titre||''},
     cas_refus:{nb:ANS.refus_nb||'',motif:ANS.refus_motif_connu||'',action:ANS.refus_action||'',delai:ANS.refus_delai||''},
     cas_independant:{registre:ANS.independant_registre||'',anciennete:ANS.independant_anciennete||'',liasse:ANS.independant_liasse||''},
-    documents:ANS.docs||[],docs_traduction:ANS.docs_traduction||'',
+    docs: ANS.docs || [],docs_traduction:ANS.docs_traduction||'',
     score:SCORE,niveau:lv.lbl,statut:'Évaluation initiale',pack_choisi:'',
     consentement:ANS.consentement||'',notes:''
   };
