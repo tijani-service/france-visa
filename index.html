@@ -1029,6 +1029,13 @@ function buildReport(){
     ANS.refus_pays = ANS.refus_pays.join(", ");
 }**/
 //Ayat
+// Ajouter rapport
+ANS.score = score;
+ANS.niveau = niveau;
+ANS.message = msgWA.replace(/\n/g, " | ");
+ANS.points_forts = pointsForts;
+ANS.points_faibles = pointsFaibles;
+ANS.recommandations = reco;
  console.log(ANS);
  // ENVOI GOOGLE SHEET
  const dataClean = prepareDataForSheet(ANS);
