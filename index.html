@@ -1020,54 +1020,117 @@ function buildReport(){
 
   document.getElementById('rZone').innerHTML=html;
   showS('s2');
-  //Ayat
-/** if (Array.isArray(ANS.docs)) {
-//    ANS.docs = ANS.docs.join(", ");
-}**/
 
-/**if (Array.isArray(ANS.refus_pays)) {
-    ANS.refus_pays = ANS.refus_pays.join(", ");
-}**/
-//Ayat
-// Ajouter rapport
-//ANS.score = score;
-ANS.score = SCORE;
-ANS.niveau = niveau;
-ANS.message = msgWA.replace(/\n/g, " | ");
-ANS.points_forts = pointsForts;
-ANS.points_faibles = pointsFaibles;
-ANS.recommandations = reco;
- console.log(ANS);
- // ENVOI GOOGLE SHEET
- const dataClean = prepareDataForSheet(ANS);
- envoyerVersGoogleSheet(dataClean);
+  // --- SAUVEGARDE GOOGLE SHEETS ---
+  // Construire le message WhatsApp pour le stocker aussi
+  var lv2=lvl(SCORE);
+  var ALL_DOCS2=fr?ALL_DOCS_FR:ALL_DOCS_AR;
+  var missing2=ALL_DOCS2.filter(function(d){return (ANS.docs||[]).indexOf(d)<0;}).slice(0,3);
+  var pf_wa=[];
+  if(ANS.emploi&&!ANS.emploi.includes('Sans emploi')&&!ANS.emploi.includes('بدون عمل')) pf_wa.push(fr?'Emploi: '+ANS.emploi:'الوضع المهني: '+ANS.emploi);
+  if(ANS.visa_schengen_actif&&(ANS.visa_schengen_actif.includes('actif')||ANS.visa_schengen_actif.includes('سارية'))) pf_wa.push(fr?'Visa Schengen actif':'تأشيرة شنغن سارية');
+  if((ANS.docs||[]).length>0) pf_wa.push(fr?(ANS.docs||[]).length+' documents disponibles':(ANS.docs||[]).length+' وثائق متوفرة');
+  var msgWA_save=fr
+    ?'Score: '+SCORE+'/100 — '+lv2.lbl+' | Motif: '+(ANS.motif||'')+' | Points forts: '+pf_wa.join(', ')+' | A améliorer: '+missing2.join(', ')+' | Pack: '+packRec
+    :'النتيجة: '+SCORE+'/100 — '+lv2.lbl+' | الغرض: '+(ANS.motif||'')+' | نقاط القوة: '+pf_wa.join(', ')+' | للتحسين: '+missing2.join(', ')+' | الباقة: '+packRec;
+
+  var dataSheet = {
+    // Identité
+    client_id:       'CLI-'+Date.now().toString(36).toUpperCase(),
+    date_evaluation: new Date().toISOString(),
+    langue:          LANG,
+    // Infos personnelles
+    prenom:          ANS.prenom||'',
+    nom:             ANS.nom||'',
+    age:             ANS.age||'',
+    sexe:            ANS.sexe||'',
+    nationalite:     ANS.nationalite||'',
+    ville:           ANS.ville_maroc||'',
+    statut_civil:    ANS.statut_civil||'',
+    enfants_maroc:   ANS.enfants_maroc||'',
+    conjoint_maroc:  ANS.conjoint_maroc||'',
+    // Emploi
+    emploi:          ANS.emploi||'',
+    anciennete:      ANS.anciennete||'',
+    secteur:         ANS.secteur||'',
+    employeur_connu: ANS.employeur_connu||'',
+    // Finances
+    revenu:          ANS.revenu||'',
+    epargne:         ANS.epargne||'',
+    releves:         ANS.releves||'',
+    dettes:          ANS.dettes||'',
+    budget_voyage:   ANS.budget_voyage||'',
+    // Voyage
+    motif:           ANS.motif||'',
+    duree:           ANS.duree||'',
+    destination:     ANS.destination_fr||'',
+    premier_voyage:  ANS.premier_voyage||'',
+    aller_retour:    ANS.aller_retour||'',
+    // Hébergement
+    hebergement:     ANS.hebergement||'',
+    invitant_statut: ANS.invitant_statut||'',
+    invitant_lien:   ANS.invitant_lien||'',
+    garant_finance:  ANS.garant_finance||'',
+    assurance:       ANS.assurance||'',
+    // Historique
+    hist_voyage:          ANS.hist_voyage||'',
+    visa_schengen_actif:  ANS.visa_schengen_actif||'',
+    usa_uk_visa:          ANS.usa_uk_visa||'',
+    refus:                ANS.refus||'',
+    interdiction:         ANS.interdiction||'',
+    // Cas spéciaux
+    etudiant_etablissement: ANS.etudiant_etablissement||'',
+    campus_france:          ANS.campus_france||'',
+    bourse:                 ANS.bourse||'',
+    stage_convention:       ANS.stage_convention||'',
+    stage_duree:            ANS.stage_duree||'',
+    logement_etudiant:      ANS.logement_etudiant||'',
+    mineur_age_exact:       ANS.mineur_age_exact||'',
+    mineur_accompagne:      ANS.mineur_accompagne||'',
+    mineur_autorisation:    ANS.mineur_autorisation||'',
+    mineur_passeport:       ANS.mineur_passeport||'',
+    retraite_pension:       ANS.retraite_pension||'',
+    retraite_biens:         ANS.retraite_biens||'',
+    sans_emploi_allocation: ANS.sans_emploi_allocation||'',
+    sans_emploi_charge:     ANS.sans_emploi_charge||'',
+    foyer_charge:           ANS.foyer_charge||'',
+    sponsor_type:           ANS.sponsor_type||'',
+    sponsor_doc:            ANS.sponsor_doc||'',
+    garant_titre:           ANS.garant_titre||'',
+    garant_revenus:         ANS.garant_revenus||'',
+    refus_nb:               ANS.refus_nb||'',
+    refus_pays:             Array.isArray(ANS.refus_pays)?ANS.refus_pays.join(', '):(ANS.refus_pays||''),
+    refus_motif_connu:      ANS.refus_motif_connu||'',
+    refus_action:           ANS.refus_action||'',
+    refus_delai:            ANS.refus_delai||'',
+    independant_registre:   ANS.independant_registre||'',
+    independant_anciennete: ANS.independant_anciennete||'',
+    independant_chiffre:    ANS.independant_chiffre||'',
+    independant_liasse:     ANS.independant_liasse||'',
+    independant_siege:      ANS.independant_siege||'',
+    // Documents
+    docs:                Array.isArray(ANS.docs)?ANS.docs.join(' | '):'',
+    docs_nb:             (ANS.docs||[]).length,
+    docs_traduction:     ANS.docs_traduction||'',
+    docs_manquants:      missing2.join(' | '),
+    consentement:        ANS.consentement||'',
+    // === DONNÉES DU RAPPORT ===
+    score:               SCORE,
+    niveau:              lv2.lbl,
+    score_emploi:        '',  // réservé pour évolution
+    points_forts:        pf.join(' | '),
+    points_faibles:      pw.concat(flags_o).join(' | '),
+    points_bloquants:    flags_r.join(' | '),
+    pack_recommande:     packRec,
+    pack_choisi:         '',
+    message_wa:          msgWA_save,
+    statut_dossier:      'Nouveau',
+    notes:               ''
+  };
+
+  console.log('[Visa France] Envoi vers Google Sheets :', dataSheet);
+  envoyerVersGoogleSheet(dataSheet);
 }
-//Ayat
-function prepareDataForSheet(data) {
-    let clean = {};
-
-    Object.keys(data).forEach(key => {
-        let value = data[key];
-
-        // convertir tableaux → texte
-        if (Array.isArray(value)) {
-            value = value.join(", ");
-        }
-
-        // convertir objets → JSON string
-        if (typeof value === "object" && value !== null) {
-            value = JSON.stringify(value);
-        }
-
-        clean[key] = value || "";
-    });
-
-    // ajouter date
-    clean.date = new Date().toISOString();
-
-    return clean;
-}
-
 function buildPacks(recIdx){
   var fr=LANG==='fr';
   var dir=isRTL()?'dir="rtl"':'';
@@ -1181,67 +1244,26 @@ function buildJSON(){
 function cpJ(){
   navigator.clipboard.writeText(document.getElementById('jb').textContent).then(function(){alert(LANG==='fr'?'JSON copié!':'تم نسخ JSON!');}).catch(function(){});
 }
-/**
-  // End
-  // Mettez votre URL Apps Script ici
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxKzr6Je5va4ly9pozxEO4K69gnxI0hW9IFyt5HE3hC51GYseQPzYSlFpvH0MY8KKWH/exec';
+// =============================================
+// ENVOI VERS GOOGLE SHEETS
+// =============================================
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbz2X4yh34jsJfr5EfVUKgvdcfkxjCDHMbnhMe9C9grtI4bMvzW5XAo_ECTK3Pnsgoa4/exec';
 
-async function sauvegarderClient(answerObj, score, niveau, msgWA, packRec) {
-  const payload = {
-    action: 'save_client',
-    client_id: 'CLI-' + Date.now().toString(36).toUpperCase(),
-    langue: LANG,
-    prenom: answerObj.prenom || '',
-    nom: answerObj.nom || '',
-    age: answerObj.age || '',
-    ville: answerObj.ville_maroc || '',
-    emploi: answerObj.emploi || '',
-    motif: answerObj.motif || '',
-    score: score,
-    niveau: niveau,
-    pack_recommande: packRec,
-    pack_choisi: '',
-    consentement: answerObj.consentement || '',
-    points_forts: extrairePointsForts(answerObj),    // tableau de strings
-    points_faibles: extrairePointsFaibles(answerObj), // tableau de strings
-    docs_manquants: extraireDocsManquants(answerObj), // tableau de strings
-    message_wa: msgWA
-  };
-
-  try {
-    // Google Apps Script ne supporte pas CORS direct — on utilise no-cors
-    await fetch(SHEETS_URL, {
-      method: 'POST',
-      mode: 'no-cors',  // obligatoire avec Apps Script
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    console.log('Client sauvegardé :', payload.client_id);
-  } catch (err) {
-    console.error('Erreur sauvegarde :', err);
-    // Ne pas bloquer l'UI si ça échoue
-  }
+function envoyerVersGoogleSheet(data) {
+  fetch(SHEETS_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  })
+  .then(function() {
+    console.log('[Visa France] Données envoyées avec succès vers Google Sheets');
+  })
+  .catch(function(err) {
+    console.error('[Visa France] Erreur envoi Google Sheets :', err);
+  });
 }
-  **/
-  
-  function envoyerVersGoogleSheet(data) {
-    const url = "https://script.google.com/macros/s/AKfycbz2X4yh34jsJfr5EfVUKgvdcfkxjCDHMbnhMe9C9grtI4bMvzW5XAo_ECTK3Pnsgoa4/exec";
 
-    fetch(url, {
-        method: "POST",
-        mode: "no-cors",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(data)
-    })
-    .then(() => {
-        console.log("Données envoyées avec succès");
-    })
-    .catch(err => {
-        console.error("Erreur envoi :", err);
-    });
-}
 </script>
 </body>
 </html>
