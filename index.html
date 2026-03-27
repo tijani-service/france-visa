@@ -1021,57 +1021,99 @@ function buildReport(){
   document.getElementById('rZone').innerHTML=html;
   showS('s2');
 
-  // --- SAUVEGARDE GOOGLE SHEETS ---
-  // Construire le message WhatsApp pour le stocker aussi
-  var lv2=lvl(SCORE);
-  var ALL_DOCS2=fr?ALL_DOCS_FR:ALL_DOCS_AR;
-  var missing2=ALL_DOCS2.filter(function(d){return (ANS.docs||[]).indexOf(d)<0;}).slice(0,3);
-  var pf_wa=[];
-  if(ANS.emploi&&!ANS.emploi.includes('Sans emploi')&&!ANS.emploi.includes('بدون عمل')) pf_wa.push(fr?'Emploi: '+ANS.emploi:'الوضع المهني: '+ANS.emploi);
-  if(ANS.visa_schengen_actif&&(ANS.visa_schengen_actif.includes('actif')||ANS.visa_schengen_actif.includes('سارية'))) pf_wa.push(fr?'Visa Schengen actif':'تأشيرة شنغن سارية');
-  if((ANS.docs||[]).length>0) pf_wa.push(fr?(ANS.docs||[]).length+' documents disponibles':(ANS.docs||[]).length+' وثائق متوفرة');
-  var msgWA_save=fr
-    ?'Score: '+SCORE+'/100 — '+lv2.lbl+' | Motif: '+(ANS.motif||'')+' | Points forts: '+pf_wa.join(', ')+' | A améliorer: '+missing2.join(', ')+' | Pack: '+packRec
-    :'النتيجة: '+SCORE+'/100 — '+lv2.lbl+' | الغرض: '+(ANS.motif||'')+' | نقاط القوة: '+pf_wa.join(', ')+' | للتحسين: '+missing2.join(', ')+' | الباقة: '+packRec;
+  // Stocker le rapport pour navigation (packs, WA) sans recalcul
+  var ALL_DOCS2 = fr ? ALL_DOCS_FR : ALL_DOCS_AR;
+  var missing2  = ALL_DOCS2.filter(function(d){ return docs.indexOf(d)<0; });
 
+  // Construire le message WhatsApp IDENTIQUE à buildWA()
+  var pf_short2 = [];
+  if(ANS.emploi&&!ANS.emploi.includes('Sans emploi')&&!ANS.emploi.includes('بدون عمل'))
+    pf_short2.push(fr?'Situation professionnelle : '+ANS.emploi:'الوضع المهني: '+ANS.emploi);
+  if(ANS.visa_schengen_actif&&(ANS.visa_schengen_actif.includes('actif')||ANS.visa_schengen_actif.includes('سارية')))
+    pf_short2.push(fr?'Visa Schengen actif':'تأشيرة شنغن سارية');
+  if(docs.length>0)
+    pf_short2.push(fr?docs.length+' documents disponibles':docs.length+' وثائق متوفرة');
+  var missing_wa = missing2.slice(0,3);
+
+  var msgFR_store =
+    'Bonjour '+ANS.prenom+' 👋\n\n'
+    +'Suite à votre évaluation visa France, voici votre résumé :\n\n'
+    +'📊 *Score : '+SCORE+'/100 — '+lv.lbl+'*\n'
+    +'🎯 Motif : '+(ANS.motif||'Non précisé')+'\n'
+    +'📍 Ville : '+(ANS.ville_maroc||'Non précisée')+'\n\n'
+    +'✅ *Points forts :*\n'
+    +(pf_short2.length?pf_short2.map(function(p){return '• '+p;}).join('\n'):'• Peu de points forts identifiés')+'\n\n'
+    +'⚠️ *Priorités avant dépôt :*\n'
+    +(missing_wa.length?missing_wa.map(function(d){return '• '+d;}).join('\n'):'• Dossier bien avancé')+'\n'
+    +(ANS.assurance==='Non'?'• ⛔ Assurance voyage obligatoire — non souscrite\n':'')
+    +(flags_r.length?'\n⛔ *Points bloquants :*\n'+flags_r.map(function(f){return '• '+f;}).join('\n')+'\n':'')
+    +'\n📦 *Notre recommandation : '+packRec+'*\n\n'
+    +'Contactez-nous pour avancer sur votre dossier. Nous sommes à votre disposition 🤝\n\n'
+    +'_Ce service prépare votre dossier. Il ne garantit pas l\'obtention du visa. La décision appartient aux autorités consulaires françaises._';
+
+  var msgAR_store =
+    'مرحباً '+ANS.prenom+' 👋\n\n'
+    +'بعد تقييم ملف التأشيرة، إليك ملخص نتائجك:\n\n'
+    +'📊 *النتيجة: '+SCORE+'/100 — '+lv.lbl+'*\n'
+    +'🎯 الغرض: '+(ANS.motif||'غير محدد')+'\n'
+    +'📍 المدينة: '+(ANS.ville_maroc||'غير محددة')+'\n\n'
+    +'✅ *نقاط القوة:*\n'
+    +(pf_short2.length?pf_short2.map(function(p){return '• '+p;}).join('\n'):'• نقاط قوة قليلة')+'\n\n'
+    +'⚠️ *الأولويات قبل التقديم:*\n'
+    +(missing_wa.length?missing_wa.map(function(d){return '• '+d;}).join('\n'):'• الملف في مرحلة متقدمة')+'\n'
+    +(ANS.assurance==='لا'?'• ⛔ تأمين السفر إلزامي — لم يُشترك به\n':'')
+    +(flags_r.length?'\n⛔ *نقاط مانعة:*\n'+flags_r.map(function(f){return '• '+f;}).join('\n')+'\n':'')
+    +'\n📦 *توصيتنا: '+packRec+'*\n\n'
+    +'تواصل معنا للمضي قدماً في ملفك 🤝\n\n'
+    +'_هذه الخدمة تُحضّر ملفك ولا تضمن الحصول على التأشيرة. القرار للسلطات القنصلية الفرنسية._';
+
+  // Stocker tout pour navigation sans recalcul
+  window._RAPPORT = {
+    pf:pf, pw:pw, flags_r:flags_r, flags_o:flags_o,
+    missing:missing2, packRec:packRec, scoreIdx:scoreIdx,
+    msgFR:msgFR_store, msgAR:msgAR_store
+  };
+
+  // ── ENVOI VERS GOOGLE SHEETS ──────────────────────────────────────────
+  var msgSheet = fr ? msgFR_store : msgAR_store;
   var dataSheet = {
+    // Méta
+    client_id:        'CLI-'+Date.now().toString(36).toUpperCase(),
+    date_evaluation:  new Date().toISOString(),
+    langue:           LANG,
     // Identité
-    client_id:       'CLI-'+Date.now().toString(36).toUpperCase(),
-    date_evaluation: new Date().toISOString(),
-    langue:          LANG,
-    // Infos personnelles
-    prenom:          ANS.prenom||'',
-    nom:             ANS.nom||'',
-    age:             ANS.age||'',
-    sexe:            ANS.sexe||'',
-    nationalite:     ANS.nationalite||'',
-    ville:           ANS.ville_maroc||'',
-    statut_civil:    ANS.statut_civil||'',
-    enfants_maroc:   ANS.enfants_maroc||'',
-    conjoint_maroc:  ANS.conjoint_maroc||'',
+    prenom:           ANS.prenom||'',
+    nom:              ANS.nom||'',
+    age:              ANS.age||'',
+    sexe:             ANS.sexe||'',
+    nationalite:      ANS.nationalite||'',
+    ville:            ANS.ville_maroc||'',
+    statut_civil:     ANS.statut_civil||'',
+    enfants_maroc:    ANS.enfants_maroc||'',
+    conjoint_maroc:   ANS.conjoint_maroc||'',
     // Emploi
-    emploi:          ANS.emploi||'',
-    anciennete:      ANS.anciennete||'',
-    secteur:         ANS.secteur||'',
-    employeur_connu: ANS.employeur_connu||'',
+    emploi:           ANS.emploi||'',
+    anciennete:       ANS.anciennete||'',
+    secteur:          ANS.secteur||'',
+    employeur_connu:  ANS.employeur_connu||'',
     // Finances
-    revenu:          ANS.revenu||'',
-    epargne:         ANS.epargne||'',
-    releves:         ANS.releves||'',
-    dettes:          ANS.dettes||'',
-    budget_voyage:   ANS.budget_voyage||'',
+    revenu:           ANS.revenu||'',
+    epargne:          ANS.epargne||'',
+    releves:          ANS.releves||'',
+    dettes:           ANS.dettes||'',
+    budget_voyage:    ANS.budget_voyage||'',
     // Voyage
-    motif:           ANS.motif||'',
-    duree:           ANS.duree||'',
-    destination:     ANS.destination_fr||'',
-    premier_voyage:  ANS.premier_voyage||'',
-    aller_retour:    ANS.aller_retour||'',
+    motif:            ANS.motif||'',
+    duree:            ANS.duree||'',
+    destination:      ANS.destination_fr||'',
+    premier_voyage:   ANS.premier_voyage||'',
+    aller_retour:     ANS.aller_retour||'',
     // Hébergement
-    hebergement:     ANS.hebergement||'',
-    invitant_statut: ANS.invitant_statut||'',
-    invitant_lien:   ANS.invitant_lien||'',
-    garant_finance:  ANS.garant_finance||'',
-    assurance:       ANS.assurance||'',
+    hebergement:      ANS.hebergement||'',
+    invitant_statut:  ANS.invitant_statut||'',
+    invitant_lien:    ANS.invitant_lien||'',
+    garant_finance:   ANS.garant_finance||'',
+    assurance:        ANS.assurance||'',
     // Historique
     hist_voyage:          ANS.hist_voyage||'',
     visa_schengen_actif:  ANS.visa_schengen_actif||'',
@@ -1099,7 +1141,7 @@ function buildReport(){
     garant_titre:           ANS.garant_titre||'',
     garant_revenus:         ANS.garant_revenus||'',
     refus_nb:               ANS.refus_nb||'',
-    refus_pays:             Array.isArray(ANS.refus_pays)?ANS.refus_pays.join(', '):(ANS.refus_pays||''),
+    refus_pays:             Array.isArray(ANS.refus_pays)?ANS.refus_pays.join(' | '):(ANS.refus_pays||''),
     refus_motif_connu:      ANS.refus_motif_connu||'',
     refus_action:           ANS.refus_action||'',
     refus_delai:            ANS.refus_delai||'',
@@ -1109,28 +1151,29 @@ function buildReport(){
     independant_liasse:     ANS.independant_liasse||'',
     independant_siege:      ANS.independant_siege||'',
     // Documents
-    docs:                Array.isArray(ANS.docs)?ANS.docs.join(' | '):'',
-    docs_nb:             (ANS.docs||[]).length,
-    docs_traduction:     ANS.docs_traduction||'',
-    docs_manquants:      missing2.join(' | '),
-    consentement:        ANS.consentement||'',
-    // === DONNÉES DU RAPPORT ===
-    score:               SCORE,
-    niveau:              lv2.lbl,
-    score_emploi:        '',  // réservé pour évolution
-    points_forts:        pf.join(' | '),
-    points_faibles:      pw.concat(flags_o).join(' | '),
-    points_bloquants:    flags_r.join(' | '),
-    pack_recommande:     packRec,
-    pack_choisi:         '',
-    message_wa:          msgWA_save,
-    statut_dossier:      'Nouveau',
-    notes:               ''
+    docs:             Array.isArray(ANS.docs)?ANS.docs.join(' | '):'',
+    docs_nb:          (ANS.docs||[]).length,
+    docs_traduction:  ANS.docs_traduction||'',
+    consentement:     ANS.consentement||'',
+    // ── DONNÉES DU RAPPORT ──
+    score:             SCORE,
+    niveau:            lv.lbl,
+    points_forts:      pf.join(' | '),
+    points_faibles:    pw.join(' | '),
+    points_orange:     flags_o.join(' | '),
+    points_bloquants:  flags_r.join(' | '),
+    docs_manquants:    missing2.join(' | '),
+    nb_docs_manquants: missing2.length,
+    pack_recommande:   packRec,
+    pack_choisi:       '',
+    // Message WA EXACT — identique à ce qui s'affiche dans l'écran WhatsApp
+    message_wa:        msgSheet,
+    statut_dossier:    'Nouveau',
+    notes:             ''
   };
-
-  console.log('[Visa France] Envoi vers Google Sheets :', dataSheet);
   envoyerVersGoogleSheet(dataSheet);
 }
+
 function buildPacks(recIdx){
   var fr=LANG==='fr';
   var dir=isRTL()?'dir="rtl"':'';
@@ -1165,31 +1208,39 @@ function buildPacks(recIdx){
 
 function buildWA(){
   var fr=LANG==='fr';
-  var lv=lvl(SCORE);
-  var docs=ANS.docs||[];
-  var ALL_DOCS=fr?ALL_DOCS_FR:ALL_DOCS_AR;
-  var missing=ALL_DOCS.filter(function(d){return docs.indexOf(d)<0;}).slice(0,3);
-  var pf_short=[];
-  if(ANS.emploi&&!ANS.emploi.includes('Sans emploi')&&!ANS.emploi.includes('بدون عمل')) pf_short.push(fr?'Situation professionnelle : '+ANS.emploi:'الوضع المهني: '+ANS.emploi);
-  if(ANS.visa_schengen_actif&&(ANS.visa_schengen_actif.includes('actif')||ANS.visa_schengen_actif.includes('سارية'))) pf_short.push(fr?'Visa Schengen actif':'تأشيرة شنغن سارية');
-  if(docs.length>0) pf_short.push(fr?docs.length+' documents disponibles':docs.length+' وثائق متوفرة');
+  // Utiliser les messages déjà construits dans buildReport — identiques à ce qui est envoyé à Sheets
+  var rapport = window._RAPPORT || {};
+  var msgFR = rapport.msgFR || '';
+  var msgAR = rapport.msgAR || '';
 
-  var packRec=SCORE>=75?(fr?'Pack 3 — Suivi Premium':'الباقة 3 — المتابعة المميزة'):SCORE>=50?(fr?'Pack 2 — Accompagnement':'الباقة 2 — المرافقة'):(fr?'Pack 1 — Test & Conseils':'الباقة 1 — الاختبار والنصائح');
-
-  var msgFR='Bonjour '+ANS.prenom+' 👋\n\nSuite à votre évaluation visa France, voici votre résumé :\n\n📊 *Score : '+SCORE+'/100 — '+lv.lbl+'*\n🎯 Motif : '+(ANS.motif||'Non précisé')+'\n📍 Ville : '+(ANS.ville_maroc||'Non précisée')+'\n\n✅ *Points forts :*\n'+(pf_short.length?pf_short.map(function(p){return '• '+p;}).join('\n'):'• Peu de points forts identifiés')+'\n\n⚠️ *Priorités avant dépôt :*\n'+(missing.length?missing.map(function(d){return '• '+d;}).join('\n'):'• Dossier bien avancé')+'\n'+(ANS.assurance==='Non'?'• ⛔ Assurance voyage obligatoire — non souscrite\n':'')+'\n📦 *Notre recommandation : '+packRec+'*\n\nContactez-nous pour avancer sur votre dossier. Nous sommes à votre disposition 🤝\n\n_Ce service prépare votre dossier. Il ne garantit pas l\'obtention du visa. La décision appartient aux autorités consulaires françaises._';
-
-  var msgAR='مرحباً '+ANS.prenom+' 👋\n\nبعد تقييم ملف التأشيرة، إليك ملخص نتائجك:\n\n📊 *النتيجة: '+SCORE+'/100 — '+lv.lbl+'*\n🎯 الغرض: '+(ANS.motif||'غير محدد')+'\n📍 المدينة: '+(ANS.ville_maroc||'غير محددة')+'\n\n✅ *نقاط القوة:*\n'+(pf_short.length?pf_short.map(function(p){return '• '+p;}).join('\n'):'• نقاط قوة قليلة')+'\n\n⚠️ *الأولويات قبل التقديم:*\n'+(missing.length?missing.map(function(d){return '• '+d;}).join('\n'):'• الملف في مرحلة متقدمة')+'\n'+(ANS.assurance==='لا'?'• ⛔ تأمين السفر إلزامي — لم يُشترك به\n':'')+'\n📦 *توصيتنا: '+packRec+'*\n\nتواصل معنا للمضي قدماً في ملفك 🤝\n\n_هذه الخدمة تُحضّر ملفك ولا تضمن الحصول على التأشيرة. القرار للسلطات القنصلية الفرنسية._';
+  // Si buildWA appelé sans rapport (cas direct), reconstruire
+  if(!msgFR){
+    var lv=lvl(SCORE);
+    var docs=ANS.docs||[];
+    var ALL_DOCS=fr?ALL_DOCS_FR:ALL_DOCS_AR;
+    var missing=ALL_DOCS.filter(function(d){return docs.indexOf(d)<0;}).slice(0,3);
+    var pf_s=[];
+    if(ANS.emploi&&!ANS.emploi.includes('Sans emploi')&&!ANS.emploi.includes('بدون عمل'))
+      pf_s.push(fr?'Situation professionnelle : '+ANS.emploi:'الوضع المهني: '+ANS.emploi);
+    if(ANS.visa_schengen_actif&&(ANS.visa_schengen_actif.includes('actif')||ANS.visa_schengen_actif.includes('سارية')))
+      pf_s.push(fr?'Visa Schengen actif':'تأشيرة شنغن سارية');
+    if(docs.length>0) pf_s.push(fr?docs.length+' documents disponibles':docs.length+' وثائق متوفرة');
+    var packRec2=SCORE>=75?(fr?'Pack 3 — Suivi Premium':'الباقة 3 — المتابعة المميزة'):SCORE>=50?(fr?'Pack 2 — Accompagnement':'الباقة 2 — المرافقة'):(fr?'Pack 1 — Test & Conseils':'الباقة 1 — الاختبار والنصائح');
+    msgFR='Bonjour '+ANS.prenom+' 👋\n\nSuite à votre évaluation visa France, voici votre résumé :\n\n📊 *Score : '+SCORE+'/100 — '+lv.lbl+'*\n🎯 Motif : '+(ANS.motif||'Non précisé')+'\n📍 Ville : '+(ANS.ville_maroc||'Non précisée')+'\n\n✅ *Points forts :*\n'+(pf_s.length?pf_s.map(function(p){return '• '+p;}).join('\n'):'• Peu de points forts identifiés')+'\n\n⚠️ *Priorités avant dépôt :*\n'+(missing.length?missing.map(function(d){return '• '+d;}).join('\n'):'• Dossier bien avancé')+'\n'+(ANS.assurance==='Non'?'• ⛔ Assurance voyage obligatoire — non souscrite\n':'')+'\n📦 *Notre recommandation : '+packRec2+'*\n\nContactez-nous pour avancer sur votre dossier. Nous sommes à votre disposition 🤝\n\n_Ce service prépare votre dossier. Il ne garantit pas l\'obtention du visa. La décision appartient aux autorités consulaires françaises._';
+    msgAR='مرحباً '+ANS.prenom+' 👋\n\nبعد تقييم ملف التأشيرة، إليك ملخص نتائجك:\n\n📊 *النتيجة: '+SCORE+'/100 — '+lv.lbl+'*\n🎯 الغرض: '+(ANS.motif||'غير محدد')+'\n📍 المدينة: '+(ANS.ville_maroc||'غير محددة')+'\n\n✅ *نقاط القوة:*\n'+(pf_s.length?pf_s.map(function(p){return '• '+p;}).join('\n'):'• نقاط قوة قليلة')+'\n\n⚠️ *الأولويات قبل التقديم:*\n'+(missing.length?missing.map(function(d){return '• '+d;}).join('\n'):'• الملف في مرحلة متقدمة')+'\n'+(ANS.assurance==='لا'?'• ⛔ تأمين السفر إلزامي — لم يُشترك به\n':'')+'\n📦 *توصيتنا: '+packRec2+'*\n\nتواصل معنا للمضي قدماً في ملفك 🤝\n\n_هذه الخدمة تُحضّر ملفك ولا تضمن الحصول على التأشيرة. القرار للسلطات القنصلية الفرنسية._';
+  }
 
   var dir=isRTL()?'dir="rtl"':'';
+  var affichage = fr ? msgFR : msgAR;
   var html='<div '+dir+'>';
   html+='<h2 style="margin-bottom:.25rem">'+(fr?'Message WhatsApp':'رسالة واتساب')+'</h2>';
   html+='<p style="margin-bottom:.875rem">'+(fr?'Copiez et envoyez à votre client.':'انسخ وأرسل لعميلك.')+'</p>';
   html+='<div class="tab-row"><div class="tab act" id="t1" onclick="swTab(1)">Français</div><div class="tab" id="t2" onclick="swTab(2)">العربية</div></div>';
-  html+='<div class="wa-pre" id="waMsg">'+msgFR+'</div>';
-  html+='<button class="btn btn-p" style="margin-top:.75rem" onclick="cpWA()">'+(fr?'Copier le message':'نسخ الرسالة')+'</button>';
-  html+='<div class="nav-btns"><button class="btn" onclick="showS(\'s3\')">'+(fr?'← Packs':'← الباقات')+'</button><button class="btn btn-p" onclick="buildJSON()">JSON →</button></div></div>';
+  html+='<div class="wa-pre" id="waMsg">'+affichage+'</div>';
+  html+='<button class="btn btn-p" style="margin-top:.75rem;width:100%" onclick="cpWA()">'+(fr?'📋 Copier le message':'📋 نسخ الرسالة')+'</button>';
+  // ← Retour vers le RAPPORT (showS s2) et non vers s3 vide
+  html+='<div class="nav-btns"><button class="btn" onclick="showS(\'s2\')">'+(fr?'← Rapport':'← التقرير')+'</button><button class="btn btn-p" onclick="buildJSON()">JSON →</button></div></div>';
   document.getElementById('waZone').innerHTML=html;
-
   window._waFR=msgFR;window._waAR=msgAR;
   showS('s4');
 }
@@ -1244,10 +1295,9 @@ function buildJSON(){
 function cpJ(){
   navigator.clipboard.writeText(document.getElementById('jb').textContent).then(function(){alert(LANG==='fr'?'JSON copié!':'تم نسخ JSON!');}).catch(function(){});
 }
-// =============================================
-// ENVOI VERS GOOGLE SHEETS
-// =============================================
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbz2X4yh34jsJfr5EfVUKgvdcfkxjCDHMbnhMe9C9grtI4bMvzW5XAo_ECTK3Pnsgoa4/exec';
+
+// ── ENVOI VERS GOOGLE SHEETS ─────────────────────────────────────────────────
+var SHEETS_URL = 'https://script.google.com/macros/s/AKfycbz2X4yh34jsJfr5EfVUKgvdcfkxjCDHMbnhMe9C9grtI4bMvzW5XAo_ECTK3Pnsgoa4/exec';
 
 function envoyerVersGoogleSheet(data) {
   fetch(SHEETS_URL, {
@@ -1256,14 +1306,9 @@ function envoyerVersGoogleSheet(data) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
   })
-  .then(function() {
-    console.log('[Visa France] Données envoyées avec succès vers Google Sheets');
-  })
-  .catch(function(err) {
-    console.error('[Visa France] Erreur envoi Google Sheets :', err);
-  });
+  .then(function(){ console.log('[Visa France] Données envoyées vers Google Sheets'); })
+  .catch(function(err){ console.error('[Visa France] Erreur envoi :', err); });
 }
-
 </script>
 </body>
 </html>
