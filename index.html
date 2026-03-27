@@ -1,120 +1,264 @@
-
 <!DOCTYPE html>
-<div id="root"></div>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-:root{--c1:#1a56db;--c2:#e8f0fe;--c3:#0e3a8c;--cg:#f0f4ff;--ct:#374151;--cs:#6b7280;--cb:#e5e7eb;--cr:#dc2626;--co:#d97706;--cok:#059669;--brad:10px;--brad2:6px}
-body{font-family:'Segoe UI',system-ui,sans-serif;color:var(--ct);font-size:14px;background:transparent}
-.app{max-width:780px;margin:0 auto;padding:1rem 0}
-.screen{display:none}.screen.active{display:block}
-h1{font-size:20px;font-weight:600;color:var(--color-text-primary)}
-h2{font-size:17px;font-weight:600;color:var(--color-text-primary);margin-bottom:.75rem}
-h3{font-size:14px;font-weight:600;color:var(--color-text-primary);margin-bottom:.5rem}
-p{font-size:13px;color:var(--color-text-secondary);line-height:1.6}
-.card{background:var(--color-background-primary);border:.5px solid var(--color-border-tertiary);border-radius:var(--brad);padding:1.25rem;margin-bottom:.875rem}
-.card-info{border-color:var(--color-border-info);background:var(--color-background-info)}
-.card-warn{border-color:var(--color-border-warning);background:var(--color-background-warning)}
-.card-ok{border-color:var(--color-border-success);background:var(--color-background-success)}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border:.5px solid var(--color-border-secondary);border-radius:var(--brad2);background:transparent;color:var(--color-text-primary);font-size:13px;font-weight:500;cursor:pointer;transition:background .15s}
-.btn:hover{background:var(--color-background-secondary)}
-.btn-p{background:var(--color-background-info);color:var(--color-text-info);border-color:var(--color-border-info)}
-.btn-p:hover{opacity:.85}
-.btn-full{width:100%;justify-content:center}
-.prog-wrap{margin-bottom:1.25rem}
-.prog-bar{height:5px;background:var(--color-background-secondary);border-radius:3px;overflow:hidden}
-.prog-fill{height:100%;background:var(--color-text-info);transition:width .4s;border-radius:3px}
-.prog-lbl{display:flex;justify-content:space-between;font-size:11px;color:var(--color-text-tertiary);margin-bottom:5px}
-.field{margin-bottom:1rem}
-label.fl{display:block;font-size:12px;font-weight:600;color:var(--color-text-secondary);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px}
-select,input[type=text],input[type=email],input[type=tel],input[type=number],textarea{width:100%;padding:8px 11px;border:.5px solid var(--color-border-secondary);border-radius:var(--brad2);background:var(--color-background-primary);color:var(--color-text-primary);font-size:13px}
-textarea{min-height:70px;resize:vertical}
-.rgroup{display:flex;flex-direction:column;gap:6px}
-.ropt{display:flex;align-items:flex-start;gap:9px;padding:9px 11px;border:.5px solid var(--color-border-tertiary);border-radius:var(--brad2);cursor:pointer;font-size:13px;color:var(--color-text-primary);transition:all .15s;line-height:1.4}
-.ropt:hover{background:var(--color-background-secondary)}
-.ropt.sel{border-color:var(--color-border-info);background:var(--color-background-info);color:var(--color-text-info)}
-.ropt.sel .rdisc{background:var(--color-text-info)}
-.rdisc{width:13px;height:13px;border-radius:50%;border:.5px solid var(--color-border-secondary);flex-shrink:0;margin-top:1px;transition:background .15s}
-.cgroup{display:flex;flex-direction:column;gap:6px}
-.copt{display:flex;align-items:flex-start;gap:9px;padding:9px 11px;border:.5px solid var(--color-border-tertiary);border-radius:var(--brad2);cursor:pointer;font-size:13px;color:var(--color-text-primary);transition:all .15s;line-height:1.4}
-.copt:hover{background:var(--color-background-secondary)}
-.copt.sel{border-color:var(--color-border-success);background:var(--color-background-success);color:var(--color-text-success)}
-.copt.sel .cbox{background:var(--color-text-success)}
-.cbox{width:13px;height:13px;border-radius:3px;border:.5px solid var(--color-border-secondary);flex-shrink:0;margin-top:1px}
-.impact-note{font-size:10px;color:var(--color-text-tertiary);margin-top:3px;padding-left:2px}
-.badge{display:inline-block;font-size:11px;padding:2px 9px;border-radius:20px;font-weight:500}
-.b-info{background:var(--color-background-info);color:var(--color-text-info)}
-.b-ok{background:var(--color-background-success);color:var(--color-text-success)}
-.b-warn{background:var(--color-background-warning);color:var(--color-text-warning)}
-.b-danger{background:var(--color-background-danger);color:var(--color-text-danger)}
-.nav-btns{display:flex;justify-content:space-between;margin-top:1.5rem;gap:10px}
-.score-ring{width:110px;height:110px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto .875rem;border:3px solid}
-.flag{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:.5px solid var(--color-border-tertiary);font-size:12px;line-height:1.4}
-.flag:last-child{border:none}
-.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:3px}
-.dr{background:#E24B4A}.do{background:#EF9F27}.dg{background:#639922}
-.wa-pre{background:var(--color-background-secondary);border-radius:var(--brad2);padding:1rem;font-size:12px;line-height:1.7;white-space:pre-wrap;color:var(--color-text-primary);font-family:var(--font-mono);max-height:360px;overflow-y:auto}
-.rtl{direction:rtl;text-align:right}
-.tab-row{display:flex;gap:4px;border-bottom:.5px solid var(--color-border-tertiary);margin-bottom:.875rem}
-.tab{padding:7px 13px;font-size:12px;cursor:pointer;border-bottom:2px solid transparent;color:var(--color-text-secondary)}
-.tab.act{border-bottom-color:var(--color-text-info);color:var(--color-text-info);font-weight:600}
-.disc{font-size:11px;color:var(--color-text-tertiary);line-height:1.5;padding:.75rem;background:var(--color-background-secondary);border-radius:var(--brad2);margin-top:.875rem}
-.pack-card{border:.5px solid var(--color-border-tertiary);border-radius:var(--brad);padding:1.1rem;margin-bottom:.75rem;cursor:pointer}
-.pack-feat{border:2px solid var(--color-border-info)}
-.pack-price{font-size:19px;font-weight:600;color:var(--color-text-primary)}
-.section-tag{display:inline-block;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;padding:2px 8px;border-radius:20px;margin-bottom:.5rem;background:var(--color-background-secondary);color:var(--color-text-secondary)}
-.alert-box{padding:.75rem 1rem;border-radius:var(--brad2);font-size:12px;margin-bottom:.75rem;border:.5px solid}
-.alert-warn{background:var(--color-background-warning);border-color:var(--color-border-warning);color:var(--color-text-warning)}
-.alert-info{background:var(--color-background-info);border-color:var(--color-border-info);color:var(--color-text-info)}
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-@media(max-width:520px){.two-col{grid-template-columns:1fr}}
-.json-box{background:var(--color-background-secondary);border-radius:var(--brad2);padding:1rem;font-size:10px;line-height:1.5;white-space:pre-wrap;color:var(--color-text-primary);font-family:var(--font-mono);max-height:400px;overflow-y:auto}
-.checklist-item{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--color-text-secondary);padding:3px 0}
-</style>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visa France — Évaluation de dossier</title>
+    <style>
+        :root {
+            --primary: #1a56db;
+            --primary-dark: #1e429f;
+            --primary-light: #eff6ff;
+            --secondary: #64748b;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #059669;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --radius: 12px;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: var(--text-main);
+            background-color: var(--bg);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .app {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .screen { display: none; animation: fadeIn 0.3s ease-out; }
+        .screen.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Typography */
+        h1 { font-size: 1.5rem; font-weight: 800; color: var(--text-main); letter-spacing: -0.025em; margin-bottom: 0.5rem; }
+        h2 { font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin-bottom: 1rem; }
+        h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; }
+        p { font-size: 0.935rem; color: var(--text-muted); }
+
+        /* Cards & Containers */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 1.25rem;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 0.75rem 1.25rem;
+            border-radius: var(--radius);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid var(--border);
+            background: white;
+            color: var(--text-main);
+        }
+
+        .btn:hover { background: #f1f5f9; border-color: #cbd5e1; }
+        
+        .btn-p {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .btn-p:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 10px 15px -3px rgba(26, 86, 219, 0.2); }
+
+        .btn-full { width: 100%; }
+
+        /* Progress Bar */
+        .prog-wrap { margin-bottom: 2rem; }
+        .prog-lbl { display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700; color: var(--primary); text-transform: uppercase; margin-bottom: 0.5rem; }
+        .prog-bar { height: 8px; background: var(--border); border-radius: 10px; overflow: hidden; }
+        .prog-fill { height: 100%; background: var(--primary); transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        /* Form Elements */
+        .field { margin-bottom: 1.5rem; }
+        label.fl { display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.75rem; }
+
+        input[type=text], select, textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            transition: border-color 0.2s;
+            background: white;
+        }
+
+        input:focus { outline: none; border-color: var(--primary); ring: 2px solid var(--primary-light); }
+
+        /* Custom Selection UI */
+        .ropt, .copt {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .ropt:hover, .copt:hover { border-color: var(--primary); background: var(--primary-light); }
+        
+        .ropt.sel, .copt.sel {
+            border-color: var(--primary);
+            background: var(--primary-light);
+            border-width: 2px;
+            padding: calc(1rem - 1px);
+        }
+
+        .rdisc, .cbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border);
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+        .rdisc { border-radius: 50%; }
+        .cbox { border-radius: 4px; }
+
+        .sel .rdisc { border-color: var(--primary); border-width: 6px; }
+        .sel .cbox { background: var(--primary); border-color: var(--primary); }
+
+        /* Score & Results */
+        .score-ring {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 1.5rem auto;
+            border: 6px solid var(--border);
+            background: white;
+        }
+        .score-ring b { font-size: 1.75rem; font-weight: 800; }
+        .score-ring span { font-size: 0.75rem; color: var(--text-muted); }
+
+        .badge {
+            display: inline-flex;
+            padding: 0.25rem 0.75rem;
+            border-radius: 99px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .b-info { background: var(--primary-light); color: var(--primary); }
+
+        /* Alerts & Notes */
+        .disc {
+            font-size: 0.85rem;
+            background: #fffbeb;
+            border: 1px solid #fef3c7;
+            color: #92400e;
+            padding: 1rem;
+            border-radius: var(--radius);
+            margin-top: 2rem;
+        }
+
+        .wa-pre, .json-box {
+            background: #1e293b;
+            color: #f8fafc;
+            padding: 1rem;
+            border-radius: var(--radius);
+            font-family: 'SFMono-Regular', Consolas, monospace;
+            font-size: 0.8rem;
+            overflow-x: auto;
+        }
+
+        .nav-btns { display: flex; gap: 1rem; margin-top: 2rem; }
+        .nav-btns .btn { flex: 1; }
+
+        .rtl { direction: rtl; text-align: right; }
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        @media(max-width: 480px) { .two-col { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
 
 <div class="app" id="APP">
 
-<!-- S0: LANGUE -->
-<div class="screen active" id="s0">
-  <div style="text-align:center;padding:2rem 1rem 1rem">
-    <div style="font-size:36px;margin-bottom:1rem">🇫🇷 🇲🇦</div>
-    <h1 style="margin-bottom:.5rem">Visa France — Évaluation de dossier</h1>
-    <p style="margin-bottom:.25rem">Service d'aide à la préparation — Clients marocains</p>
-    <p style="font-size:11px;margin-bottom:2rem">خدمة مساعدة في تحضير ملف التأشيرة — العملاء المغاربة</p>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:360px;margin:0 auto 1.5rem">
-      <button class="btn btn-full" style="padding:16px;font-size:15px;flex-direction:column;gap:4px" onclick="init('fr')">
-        <span style="font-size:24px">🇫🇷</span>Français
-      </button>
-      <button class="btn btn-full" style="padding:16px;font-size:15px;flex-direction:column;gap:4px" onclick="init('ar')">
-        <span style="font-size:24px">🇲🇦</span>العربية
-      </button>
+    <div class="screen active" id="s0">
+        <div style="text-align:center; padding: 3rem 1rem;">
+            <div style="font-size:3rem; margin-bottom:1.5rem; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1))">🇫🇷</div>
+            <h1>Visa France</h1>
+            <p>Évaluation de dossier & aide à la préparation</p>
+            <p style="font-size:0.8rem; margin-bottom:2.5rem; opacity:0.8">المغرب — خدمة مساعدة في تحضير ملف التأشيرة</p>
+            
+            <div class="two-col" style="max-width: 400px; margin: 0 auto;">
+                <button class="btn btn-p btn-full" style="height: auto; padding: 1.5rem 1rem; flex-direction: column;" onclick="init('fr')">
+                    <span style="font-size:1.5rem">Français</span>
+                    <span style="font-size:0.7rem; font-weight:400; opacity:0.9">Commencer</span>
+                </button>
+                <button class="btn btn-full" style="height: auto; padding: 1.5rem 1rem; flex-direction: column;" onclick="init('ar')">
+                    <span style="font-size:1.5rem">العربية</span>
+                    <span style="font-size:0.7rem; font-weight:400; opacity:0.9">ابدأ الآن</span>
+                </button>
+            </div>
+        </div>
+        <div class="disc">
+            <strong>⚠️ Avis important :</strong> Ce service est un outil d'aide indépendant. Il ne garantit pas l'obtention du visa. La décision finale appartient au Consulat.
+        </div>
     </div>
-  </div>
-  <div class="disc" style="max-width:540px;margin:0 auto">⚠️ Ce service évalue votre préparation au dossier visa. Il <strong>ne garantit pas</strong> l'obtention du visa. La décision appartient exclusivement aux autorités consulaires françaises. Données traitées en toute confidentialité.
-  <br><br>⚠️ هذه الخدمة تُقيّم جاهزية ملفك فقط. <strong>لا تضمن</strong> الحصول على التأشيرة. القرار يعود حصراً للسلطات القنصلية الفرنسية.
-  </div>
-</div>
 
-<!-- S1: QUESTIONNAIRE -->
-<div class="screen" id="s1">
-  <div class="prog-wrap">
-    <div class="prog-lbl"><span id="stepLbl"></span><span id="stepPct"></span></div>
-    <div class="prog-bar"><div class="prog-fill" id="pFill" style="width:5%"></div></div>
-  </div>
-  <div id="qZone"></div>
-  <div class="nav-btns">
-    <button class="btn" id="btnBack" onclick="prevQ()">← <span id="lblBack">Retour</span></button>
-    <button class="btn btn-p" id="btnFwd" onclick="nextQ()"><span id="lblFwd">Continuer</span> →</button>
-  </div>
-</div>
+    <div class="screen" id="s1">
+        <div class="prog-wrap">
+            <div class="prog-lbl">
+                <span id="stepLbl">Étape 1</span>
+                <span id="stepPct">10%</span>
+            </div>
+            <div class="prog-bar"><div class="prog-fill" id="pFill" style="width:10%"></div></div>
+        </div>
+        
+        <div id="qZone" class="card">
+            </div>
 
-<!-- S2: RAPPORT -->
-<div class="screen" id="s2"><div id="rZone"></div></div>
-<!-- S3: PACKS -->
-<div class="screen" id="s3"><div id="pkZone"></div></div>
-<!-- S4: WHATSAPP -->
-<div class="screen" id="s4"><div id="waZone"></div></div>
-<!-- S5: JSON -->
-<div class="screen" id="s5"><div id="jsZone"></div></div>
+        <div class="nav-btns">
+            <button class="btn" id="btnBack" onclick="prevQ()">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                <span id="lblBack">Retour</span>
+            </button>
+            <button class="btn btn-p" id="btnFwd" onclick="nextQ()">
+                <span id="lblFwd">Continuer</span>
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <div class="screen" id="s2"><div id="rZone"></div></div>
+    <div class="screen" id="s3"><div id="pkZone"></div></div>
+    <div class="screen" id="s4"><div id="waZone"></div></div>
+    <div class="screen" id="s5"><div id="jsZone"></div></div>
 
 </div>
 
@@ -991,3 +1135,5 @@ function cpJ(){
 }
   // End
 </script>
+</body>
+</html>
