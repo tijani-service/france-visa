@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visa France — Évaluation de dossier</title>
+    <title>Tijani Visa France — Évaluation de dossier</title>
     <style>
         :root {
             --primary: #1a56db;
@@ -202,13 +202,87 @@
         .rtl { direction: rtl; text-align: right; }
         .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
         @media(max-width: 480px) { .two-col { grid-template-columns: 1fr; } }
+
+        /* ── Sécurité — écran code ── */
+        .code-wrap { text-align:center; padding: 3rem 1rem 2rem; }
+        .code-icon { font-size: 3rem; margin-bottom: 1.25rem; }
+        .code-input {
+            text-align: center; font-size: 1.5rem; font-weight: 700;
+            letter-spacing: 0.3em; text-transform: uppercase;
+            width: 100%; max-width: 280px; padding: 1rem;
+            border: 2px solid var(--border); border-radius: var(--radius);
+            background: white; color: var(--text-main);
+            transition: border-color 0.2s;
+        }
+        .code-input:focus { outline: none; border-color: var(--primary); }
+        .code-input.error { border-color: var(--danger); animation: shake 0.3s; }
+        .code-input.success { border-color: var(--success); }
+        .code-msg { font-size: 0.85rem; margin-top: 0.75rem; min-height: 1.2em; font-weight: 600; }
+        .code-msg.err { color: var(--danger); }
+        .code-msg.ok  { color: var(--success); }
+        @keyframes shake {
+            0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)}
+            40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)}
+        }
+        .spinner {
+            display: inline-block; width: 18px; height: 18px;
+            border: 2px solid var(--border); border-top-color: var(--primary);
+            border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .session-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 0.7rem; padding: 3px 10px; border-radius: 99px;
+            background: #dcfce7; color: #166534; font-weight: 600;
+            position: fixed; top: 12px; right: 12px; z-index: 100;
+        }
+        .session-dot { width: 6px; height: 6px; border-radius: 50%; background: #16a34a; }
     </style>
 </head>
 <body>
 
+<!-- Badge session active (visible une fois authentifié) -->
+<div class="session-badge" id="sessionBadge" style="display:none">
+  <div class="session-dot"></div>
+  <span id="sessionCode">—</span>
+</div>
+
 <div class="app" id="APP">
 
-    <div class="screen active" id="s0">
+    <!-- ══ ÉCRAN CODE (s_code) — affiché en premier ══ -->
+    <div class="screen active" id="s_code">
+        <div class="code-wrap">
+            <div class="code-icon">🔐</div>
+            <h1 style="margin-bottom:0.5rem">Visa France</h1>
+            <p style="margin-bottom:0.5rem">Évaluation de dossier &amp; aide à la préparation</p>
+            <p style="font-size:0.8rem; margin-bottom:2rem; opacity:0.7">خدمة مساعدة في تحضير ملف التأشيرة</p>
+
+            <div class="card" style="max-width:360px; margin:0 auto 1.5rem; text-align:left">
+                <label style="display:block; font-size:0.8rem; font-weight:700; margin-bottom:0.5rem; color:var(--text-muted)">
+                    CODE D'ACCÈS — رمز الدخول
+                </label>
+                <input
+                    class="code-input" id="codeInput" type="text"
+                    maxlength="8" placeholder="XXXXXXXX"
+                    autocomplete="off" autocapitalize="characters" spellcheck="false"
+                    oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')"
+                    onkeydown="if(event.key==='Enter') validerCode()"
+                />
+                <div class="code-msg" id="codeMsg"></div>
+                <button class="btn btn-p btn-full" style="margin-top:1rem" onclick="validerCode()" id="btnCode">
+                    Valider le code &nbsp;→
+                </button>
+            </div>
+
+            <p style="font-size:0.75rem; color:var(--text-muted); max-width:320px; margin:0 auto">
+                Ce code vous a été remis par votre conseiller à l'agence.
+                <br>تم تسليمك هذا الرمز من قبل مستشارك في الوكالة.
+            </p>
+        </div>
+    </div>
+
+    <!-- ══ ÉCRAN LANGUE (s0) ══ -->
+    <div class="screen" id="s0">
         <div style="text-align:center; padding: 3rem 1rem;">
             <div style="font-size:3rem; margin-bottom:1.5rem; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1))">🇫🇷</div>
             <h1>Visa France</h1>
@@ -1021,7 +1095,7 @@ function buildReport(){
   document.getElementById('rZone').innerHTML=html;
   showS('s2');
 
-  // ── Construire le message WA EXACT (même que buildWA) ─────────────────
+  // ── Message WA exact (identique à buildWA) ────────────────────────────
   var docs2   = ANS.docs||[];
   var ADOCS2  = fr ? ALL_DOCS_FR : ALL_DOCS_AR;
   var miss2   = ADOCS2.filter(function(d){ return docs2.indexOf(d)<0; }).slice(0,3);
@@ -1061,123 +1135,58 @@ function buildReport(){
     +'تواصل معنا للمضي قدماً في ملفك 🤝\n\n'
     +'_هذه الخدمة تُحضّر ملفك ولا تضمن الحصول على التأشيرة. القرار للسلطات القنصلية الفرنسية._';
 
-  // Stocker pour buildWA (réutilise exactement ces messages)
   window._RAPPORT = {
     pf:pf, pw:pw, flags_r:flags_r, flags_o:flags_o,
     missing:missing, packRec:packRec, scoreIdx:scoreIdx,
     msgFR:msgFR_wa, msgAR:msgAR_wa
   };
 
-  var cid     = 'CLI-'+Date.now().toString(36).toUpperCase();
-  var now     = new Date().toISOString();
+  var cid      = 'CLI-'+Date.now().toString(36).toUpperCase();
+  var now      = new Date().toISOString();
   var msgSheet = (LANG==='fr') ? msgFR_wa : msgAR_wa;
+  var sess     = getSession();
 
-  // ══════════════════════════════════════════════════════════════════════
-  //  FEUILLE 1 · SUIVI  (vue CRM — 12 colonnes — l'essentiel du quotidien)
-  // ══════════════════════════════════════════════════════════════════════
-  var dSuivi = {
-    feuille:       'SUIVI',
-    client_id:     cid,
-    date_eval:     now,
-    langue:        LANG,
-    prenom:        ANS.prenom||'',
-    nom:           ANS.nom||'',
-    ville:         ANS.ville_maroc||'',
-    motif:         ANS.motif||'',
-    score:         SCORE,
-    niveau:        lv.lbl,
-    pack_recommande: packRec,
-    pack_choisi:   '',
-    statut:        'Nouveau',
-    message_wa:    msgSheet,
-    notes:         ''
-  };
+  // Feuille 1 · SUIVI
+  envoyerVersGoogleSheet({ feuille:'SUIVI', client_id:cid, date_eval:now, langue:LANG,
+    prenom:ANS.prenom||'', nom:ANS.nom||'', ville:ANS.ville_maroc||'', motif:ANS.motif||'',
+    score:SCORE, niveau:lv.lbl, pack_recommande:packRec, pack_choisi:'',
+    statut:'Nouveau', message_wa:msgSheet, notes:'',
+    code_acces: sess.code||'' });
 
-  // ══════════════════════════════════════════════════════════════════════
-  //  FEUILLE 2 · PROFIL  (identité + emploi + finances — 16 colonnes)
-  // ══════════════════════════════════════════════════════════════════════
-  var dProfil = {
-    feuille:       'PROFIL',
-    client_id:     cid,
-    age:           ANS.age||'',
-    sexe:          ANS.sexe||'',
-    nationalite:   ANS.nationalite||'',
-    statut_civil:  ANS.statut_civil||'',
-    enfants_maroc: ANS.enfants_maroc||'',
-    conjoint_maroc:ANS.conjoint_maroc||'',
-    emploi:        ANS.emploi||'',
-    anciennete:    ANS.anciennete||'',
-    secteur:       ANS.secteur||'',
-    revenu:        ANS.revenu||'',
-    epargne:       ANS.epargne||'',
-    releves:       ANS.releves||'',
-    dettes:        ANS.dettes||'',
-    consentement:  ANS.consentement||''
-  };
+  // Feuille 2 · PROFIL
+  setTimeout(function(){ envoyerVersGoogleSheet({ feuille:'PROFIL', client_id:cid,
+    age:ANS.age||'', sexe:ANS.sexe||'', nationalite:ANS.nationalite||'',
+    statut_civil:ANS.statut_civil||'', enfants_maroc:ANS.enfants_maroc||'',
+    conjoint_maroc:ANS.conjoint_maroc||'', emploi:ANS.emploi||'',
+    anciennete:ANS.anciennete||'', secteur:ANS.secteur||'',
+    revenu:ANS.revenu||'', epargne:ANS.epargne||'', releves:ANS.releves||'',
+    dettes:ANS.dettes||'', consentement:ANS.consentement||'' }); }, 300);
 
-  // ══════════════════════════════════════════════════════════════════════
-  //  FEUILLE 3 · VOYAGE  (séjour + hébergement + historique — 14 colonnes)
-  // ══════════════════════════════════════════════════════════════════════
-  var dVoyage = {
-    feuille:          'VOYAGE',
-    client_id:        cid,
-    duree:            ANS.duree||'',
-    destination:      ANS.destination_fr||'',
-    premier_voyage:   ANS.premier_voyage||'',
-    aller_retour:     ANS.aller_retour||'',
-    hebergement:      ANS.hebergement||'',
-    invitant_lien:    ANS.invitant_lien||'',
-    garant_finance:   ANS.garant_finance||'',
-    assurance:        ANS.assurance||'',
-    hist_voyage:      ANS.hist_voyage||'',
-    visa_schengen:    ANS.visa_schengen_actif||'',
-    usa_uk_visa:      ANS.usa_uk_visa||'',
-    refus:            ANS.refus||'',
-    interdiction:     ANS.interdiction||''
-  };
+  // Feuille 3 · VOYAGE
+  setTimeout(function(){ envoyerVersGoogleSheet({ feuille:'VOYAGE', client_id:cid,
+    duree:ANS.duree||'', destination:ANS.destination_fr||'',
+    premier_voyage:ANS.premier_voyage||'', aller_retour:ANS.aller_retour||'',
+    hebergement:ANS.hebergement||'', invitant_lien:ANS.invitant_lien||'',
+    garant_finance:ANS.garant_finance||'', assurance:ANS.assurance||'',
+    hist_voyage:ANS.hist_voyage||'', visa_schengen:ANS.visa_schengen_actif||'',
+    usa_uk_visa:ANS.usa_uk_visa||'', refus:ANS.refus||'', interdiction:ANS.interdiction||'' }); }, 600);
 
-  // ══════════════════════════════════════════════════════════════════════
-  //  FEUILLE 4 · RAPPORT  (analyse générée — 11 colonnes)
-  // ══════════════════════════════════════════════════════════════════════
-  var dRapport = {
-    feuille:          'RAPPORT',
-    client_id:        cid,
-    score:            SCORE,
-    niveau:           lv.lbl,
-    points_forts:     pf.join(' | '),
-    points_faibles:   pw.join(' | '),
-    points_orange:    flags_o.join(' | '),
-    points_bloquants: flags_r.join(' | '),
-    docs:             Array.isArray(ANS.docs)?ANS.docs.join(' | '):'',
-    docs_nb:          (ANS.docs||[]).length,
-    docs_traduction:  ANS.docs_traduction||'',
-    docs_manquants:   missing.join(' | ')
-  };
+  // Feuille 4 · RAPPORT
+  setTimeout(function(){ envoyerVersGoogleSheet({ feuille:'RAPPORT', client_id:cid,
+    score:SCORE, niveau:lv.lbl,
+    points_forts:pf.join(' | '), points_faibles:pw.join(' | '),
+    points_orange:flags_o.join(' | '), points_bloquants:flags_r.join(' | '),
+    docs:Array.isArray(ANS.docs)?ANS.docs.join(' | '):'',
+    docs_nb:(ANS.docs||[]).length, docs_traduction:ANS.docs_traduction||'',
+    docs_manquants:missing.join(' | ') }); }, 900);
 
-  // ══════════════════════════════════════════════════════════════════════
-  //  FEUILLE 5 · CAS_SPECIAUX  (profils particuliers — 10 colonnes)
-  // ══════════════════════════════════════════════════════════════════════
-  var dCas = {
-    feuille:              'CAS_SPECIAUX',
-    client_id:            cid,
-    campus_france:        ANS.campus_france||'',
-    bourse:               ANS.bourse||'',
-    stage_convention:     ANS.stage_convention||'',
-    mineur_autorisation:  ANS.mineur_autorisation||'',
-    sponsor_type:         ANS.sponsor_type||'',
-    garant_titre:         ANS.garant_titre||'',
-    refus_motif:          ANS.refus_motif_connu||'',
-    refus_action:         ANS.refus_action||'',
-    independant_registre: ANS.independant_registre||'',
-    independant_liasse:   ANS.independant_liasse||''
-  };
-
-  // Envoi des 5 feuilles en séquence avec délai pour éviter les collisions
-  envoyerVersGoogleSheet(dSuivi);
-  setTimeout(function(){ envoyerVersGoogleSheet(dProfil);   }, 300);
-  setTimeout(function(){ envoyerVersGoogleSheet(dVoyage);   }, 600);
-  setTimeout(function(){ envoyerVersGoogleSheet(dRapport);  }, 900);
-  setTimeout(function(){ envoyerVersGoogleSheet(dCas);      }, 1200);
+  // Feuille 5 · CAS_SPECIAUX
+  setTimeout(function(){ envoyerVersGoogleSheet({ feuille:'CAS_SPECIAUX', client_id:cid,
+    campus_france:ANS.campus_france||'', bourse:ANS.bourse||'',
+    stage_convention:ANS.stage_convention||'', mineur_autorisation:ANS.mineur_autorisation||'',
+    sponsor_type:ANS.sponsor_type||'', garant_titre:ANS.garant_titre||'',
+    refus_motif:ANS.refus_motif_connu||'', refus_action:ANS.refus_action||'',
+    independant_registre:ANS.independant_registre||'', independant_liasse:ANS.independant_liasse||'' }); }, 1200);
 
   console.log('[VisaFrance] 5 feuilles envoyées — client_id:', cid);
 }
@@ -1186,13 +1195,13 @@ function buildPacks(recIdx){
   var fr=LANG==='fr';
   var dir=isRTL()?'dir="rtl"':'';
   var packs=fr?[
-    {name:'Pack 1 — Test & Conseils',prix:'99 MAD',sub:'Découverte',desc:'Idéal pour prendre conscience de votre niveau de préparation et des points à corriger avant toute démarche.',items:['Questionnaire complet adaptatif','Score sur 100 avec niveau','Analyse personnalisée','Identification des documents manquants','Conseils ciblés selon profil et motif','Rapport téléchargeable'],cta:'Déjà complété — résultats disponibles'},
-    {name:'Pack 2 — Accompagnement',prix:'À partir de 399 MAD',sub:'Recommandé',desc:'Pour préparer votre dossier complet avec un expert, réduire les risques de refus et maximiser vos chances.',items:['Tout le Pack 1','Aide au remplissage du formulaire France-Visas','Liste personnalisée et vérification des justificatifs','Vérification de cohérence globale du dossier','Modèle de lettre de motivation adaptée','Aide à la prise de RDV TLScontact','Alerte sur les documents à traduire'],cta:'Choisir ce pack'},
-    {name:'Pack 3 — Suivi Premium',prix:'À partir de 699 MAD',sub:'Complet',desc:'Accompagnement de A à Z jusqu\'au dépôt du dossier, avec suivi actif et assistance au jour du rendez-vous.',items:['Tout le Pack 2','Suivi actif de l\'avancement de votre dossier','Alerte dès l\'ouverture des créneaux TLScontact','Validation finale et relecture complète du dossier','Checklist jour J + briefing rendez-vous','Support WhatsApp dédié 7j/7 jusqu\'au RDV'],cta:'Choisir ce pack'}
+    {name:'Pack 1 — Test & Conseils',prix:'99 MAD',sub:'Découverte',desc:'Idéal pour prendre conscience de votre niveau de préparation et des points à corriger avant toute démarche.',items:['Questionnaire complet adaptatif','Score sur 100 avec niveau','Analyse personnalisée','Identification des documents manquants','Conseils ciblés selon profil et motif','Rapport téléchargeable'],cta:'Choisir ce pack'},
+    {name:'Pack 2 — Accompagnement',prix:'399 MAD',sub:'Recommandé',desc:'Pour préparer votre dossier complet avec un expert, réduire les risques de refus et maximiser vos chances.',items:['Tout le Pack 1','Aide au remplissage du formulaire France-Visas','Liste personnalisée et vérification des justificatifs','Vérification de cohérence globale du dossier','Modèle de lettre de motivation adaptée','Aide à la prise de RDV TLScontact','Alerte sur les documents à traduire'],cta:'Choisir ce pack'},
+    {name:'Pack 3 — Suivi Premium',prix:'699 MAD',sub:'Complet',desc:'Accompagnement de A à Z jusqu\'au dépôt du dossier, avec suivi actif et assistance au jour du rendez-vous.',items:['Tout le Pack 2','Suivi actif de l\'avancement de votre dossier','Alerte dès l\'ouverture des créneaux TLScontact','Validation finale et relecture complète du dossier','Checklist jour J + briefing rendez-vous','Support WhatsApp dédié 7j/7 jusqu\'au RDV'],cta:'Choisir ce pack'}
   ]:[
-    {name:'الباقة 1 — الاختبار والنصائح',prix:'مجانية',sub:'للاكتشاف',desc:'مثالية لمعرفة مستوى تحضيرك والنقاط الواجب تصحيحها قبل أي إجراء.',items:['استبيان شامل وتكيّفي','نتيجة من 100 مع المستوى','تحليل مخصص','تحديد الوثائق الناقصة','نصائح مستهدفة حسب الملف والغرض','تقرير قابل للتحميل'],cta:'مكتملة بالفعل — النتائج متاحة'},
-    {name:'الباقة 2 — المرافقة',prix:'ابتداءً من 299 درهم',sub:'موصى بها',desc:'لإعداد ملفك الكامل مع خبير، وتقليل مخاطر الرفض وزيادة فرص النجاح.',items:['كل محتوى الباقة 1','مساعدة في ملء نموذج France-Visas','قائمة مخصصة والتحقق من الوثائق','التحقق من التماسك الكلي للملف','نموذج رسالة تحفيزية مكيّفة','مساعدة في حجز موعد TLScontact','تنبيه بالوثائق التي تحتاج ترجمة'],cta:'اختيار هذه الباقة'},
-    {name:'الباقة 3 — المتابعة المميزة',prix:'ابتداءً من 599 درهم',sub:'الأكثر شمولاً',desc:'مرافقة من الألف إلى الياء حتى تقديم الملف، مع متابعة نشطة ومساعدة يوم الموعد.',items:['كل محتوى الباقة 2','متابعة نشطة لتقدم ملفك','تنبيه فور فتح خانات TLScontact','التحقق والمراجعة النهائية الكاملة للملف','قائمة تدقيق اليوم J + إحاطة الموعد','دعم واتساب مخصص 7 أيام/7 حتى الموعد'],cta:'اختيار هذه الباقة'}
+    {name:'الباقة 1 — الاختبار والنصائح',prix:'99 درهم',sub:'للاكتشاف',desc:'مثالية لمعرفة مستوى تحضيرك والنقاط الواجب تصحيحها قبل أي إجراء.',items:['استبيان شامل وتكيّفي','نتيجة من 100 مع المستوى','تحليل مخصص','تحديد الوثائق الناقصة','نصائح مستهدفة حسب الملف والغرض','تقرير قابل للتحميل'],cta:'اختيار هذه الباقة'},
+    {name:'الباقة 2 — المرافقة',prix:'399 درهم',sub:'موصى بها',desc:'لإعداد ملفك الكامل مع خبير، وتقليل مخاطر الرفض وزيادة فرص النجاح.',items:['كل محتوى الباقة 1','مساعدة في ملء نموذج France-Visas','قائمة مخصصة والتحقق من الوثائق','التحقق من التماسك الكلي للملف','نموذج رسالة تحفيزية مكيّفة','مساعدة في حجز موعد TLScontact','تنبيه بالوثائق التي تحتاج ترجمة'],cta:'اختيار هذه الباقة'},
+    {name:'الباقة 3 — المتابعة المميزة',prix:'699 درهم',sub:'الأكثر شمولاً',desc:'مرافقة من الألف إلى الياء حتى تقديم الملف، مع متابعة نشطة ومساعدة يوم الموعد.',items:['كل محتوى الباقة 2','متابعة نشطة لتقدم ملفك','تنبيه فور فتح خانات TLScontact','التحقق والمراجعة النهائية الكاملة للملف','قائمة تدقيق اليوم J + إحاطة الموعد','دعم واتساب مخصص 7 أيام/7 حتى الموعد'],cta:'اختيار هذه الباقة'}
   ];
 
   var html='<div '+dir+'>';
@@ -1219,23 +1228,15 @@ function buildWA(){
   var rapport = window._RAPPORT||{};
   var msgFR = rapport.msgFR||'';
   var msgAR = rapport.msgAR||'';
+  var scoreIdx2 = rapport.scoreIdx!==undefined ? rapport.scoreIdx : (SCORE>=75?2:SCORE>=50?1:0);
 
-  // Fallback si rapport non disponible
   if(!msgFR){
     var lv2=lvl(SCORE);
-    var docs=ANS.docs||[];
-    var AD=fr?ALL_DOCS_FR:ALL_DOCS_AR;
-    var ms=AD.filter(function(d){return docs.indexOf(d)<0;}).slice(0,3);
-    var pfs=[];
-    if(ANS.emploi&&!ANS.emploi.includes('Sans emploi')&&!ANS.emploi.includes('بدون عمل'))
-      pfs.push(fr?'Situation professionnelle : '+ANS.emploi:'الوضع المهني: '+ANS.emploi);
-    if(docs.length>0) pfs.push(fr?docs.length+' documents disponibles':docs.length+' وثائق متوفرة');
     var pr=SCORE>=75?(fr?'Pack 3 — Suivi Premium':'الباقة 3'):SCORE>=50?(fr?'Pack 2 — Accompagnement':'الباقة 2'):(fr?'Pack 1 — Test & Conseils':'الباقة 1');
-    msgFR='Bonjour '+ANS.prenom+' 👋\n\n📊 *Score : '+SCORE+'/100 — '+lv2.lbl+'*\n🎯 Motif : '+(ANS.motif||'Non précisé')+'\n\n✅ *Points forts :*\n'+(pfs.length?pfs.map(function(p){return '• '+p;}).join('\n'):'• Peu de points identifiés')+'\n\n⚠️ *Priorités :*\n'+(ms.length?ms.map(function(d){return '• '+d;}).join('\n'):'• Dossier avancé')+'\n\n📦 *Pack recommandé : '+pr+'*\n\nContactez-nous 🤝\n\n_Ce service ne garantit pas l\'obtention du visa._';
-    msgAR='مرحباً '+ANS.prenom+' 👋\n\n📊 *النتيجة: '+SCORE+'/100 — '+lv2.lbl+'*\n🎯 الغرض: '+(ANS.motif||'غير محدد')+'\n\n📦 *الباقة الموصى بها: '+pr+'*\n\nتواصل معنا 🤝';
+    msgFR='Bonjour '+ANS.prenom+' 👋\n\n📊 *Score : '+SCORE+'/100 — '+lv2.lbl+'*\n🎯 Motif : '+(ANS.motif||'Non précisé')+'\n\n📦 *Pack recommandé : '+pr+'*\n\nContactez-nous 🤝\n\n_Ce service ne garantit pas l\'obtention du visa._';
+    msgAR='مرحباً '+ANS.prenom+' 👋\n\n📊 *النتيجة: '+SCORE+'/100 — '+lv2.lbl+'*\n\n📦 *الباقة الموصى بها: '+pr+'*\n\nتواصل معنا 🤝';
   }
 
-  var scoreIdx2 = rapport.scoreIdx!==undefined ? rapport.scoreIdx : (SCORE>=75?2:SCORE>=50?1:0);
   var dir=isRTL()?'dir="rtl"':'';
   var affichage = fr ? msgFR : msgAR;
   var html='<div '+dir+'>';
@@ -1304,19 +1305,145 @@ function cpJ(){
   navigator.clipboard.writeText(document.getElementById('jb').textContent).then(function(){alert(LANG==='fr'?'JSON copié!':'تم نسخ JSON!');}).catch(function(){});
 }
 
-// ── ENVOI VERS GOOGLE SHEETS ─────────────────────────────────────────────────
-// Le champ "feuille" dans chaque objet indique à Apps Script dans quel onglet écrire
-var SHEETS_URL = 'https://script.google.com/macros/s/AKfycbw2NgnJxSjzRug2Oxgm9an9pT2fF1NKqNWYH075sR9rX0x1xpZ0KwDiL0YteFBJGpdg/exec';
+// ════════════════════════════════════════════════════════════════════════════
+//  SÉCURITÉ — Gestion du code d'accès et du token de session
+// ════════════════════════════════════════════════════════════════════════════
 
-function envoyerVersGoogleSheet(data) {
+var SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwZvE-e1n0rWljDszeySITPEZVUVBMzxptdcBiSLOYb4--Qx9u1I3mz4BjSQi6WYaF1/exec';
+
+// Token stocké en sessionStorage (effacé à la fermeture de l'onglet)
+var SESSION_KEY  = 'vf_token';
+var CODE_KEY     = 'vf_code';
+
+function getSession(){
+  try { return { token: sessionStorage.getItem(SESSION_KEY), code: sessionStorage.getItem(CODE_KEY) }; }
+  catch(e){ return { token: null, code: null }; }
+}
+
+function setSession(token, code){
+  try { sessionStorage.setItem(SESSION_KEY, token); sessionStorage.setItem(CODE_KEY, code); }
+  catch(e){}
+}
+
+function clearSession(){
+  try { sessionStorage.removeItem(SESSION_KEY); sessionStorage.removeItem(CODE_KEY); }
+  catch(e){}
+}
+
+// Vérifie au chargement si une session valide existe déjà
+(function checkExistingSession(){
+  var sess = getSession();
+  if(sess.token && sess.code){
+    // Session trouvée — vérifier côté serveur qu'elle est encore valide
+    verifierToken(sess.token, sess.code, function(ok){
+      if(ok){
+        afficherBadgeSession(sess.code);
+        showS('s0'); // Aller directement au choix de langue
+      } else {
+        clearSession();
+        showS('s_code');
+      }
+    });
+  }
+  // Si pas de session : s_code est déjà l'écran actif
+})();
+
+function afficherBadgeSession(code){
+  var badge = document.getElementById('sessionBadge');
+  var span  = document.getElementById('sessionCode');
+  if(badge){ badge.style.display = 'inline-flex'; }
+  if(span) { span.textContent = code; }
+}
+
+// ── Validation du code saisi par le client ───────────────────────────────────
+function validerCode(){
+  var input = document.getElementById('codeInput');
+  var msg   = document.getElementById('codeMsg');
+  var btn   = document.getElementById('btnCode');
+  var code  = (input.value || '').trim().toUpperCase();
+
+  if(code.length < 6){
+    msg.className = 'code-msg err';
+    msg.textContent = LANG === 'ar' ? 'الرمز قصير جداً (6–8 أحرف)' : 'Code trop court (6–8 caractères)';
+    input.classList.add('error');
+    setTimeout(function(){ input.classList.remove('error'); }, 400);
+    return;
+  }
+
+  // Afficher le spinner
+  btn.innerHTML = '<span class="spinner"></span>';
+  btn.disabled  = true;
+  msg.className = 'code-msg';
+  msg.textContent = LANG === 'ar' ? 'جارٍ التحقق...' : 'Vérification en cours…';
+
+  // Appel Apps Script — action validate_code
+  var payload = JSON.stringify({ action: 'validate_code', code: code });
+
+  fetch(SHEETS_URL + '?action=validate_code&code=' + encodeURIComponent(code), {
+    method: 'GET'
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    btn.innerHTML = LANG === 'ar' ? 'تحقق ←' : 'Valider le code →';
+    btn.disabled  = false;
+
+    if(data.ok && data.token){
+      // Succès
+      setSession(data.token, code);
+      afficherBadgeSession(code);
+      input.classList.remove('error');
+      input.classList.add('success');
+      msg.className = 'code-msg ok';
+      msg.textContent = LANG === 'ar' ? '✓ رمز صحيح — جارٍ التحميل' : '✓ Code valide — chargement…';
+      setTimeout(function(){ showS('s0'); }, 700);
+    } else {
+      // Échec
+      clearSession();
+      input.classList.add('error');
+      setTimeout(function(){ input.classList.remove('error'); }, 400);
+      msg.className = 'code-msg err';
+      var raison = data.raison || 'invalid';
+      if(raison === 'expired')
+        msg.textContent = LANG === 'ar' ? '⛔ انتهت صلاحية هذا الرمز' : '⛔ Code expiré — contactez votre conseiller';
+      else if(raison === 'revoked')
+        msg.textContent = LANG === 'ar' ? '⛔ تم إلغاء هذا الرمز' : '⛔ Code révoqué — contactez votre conseiller';
+      else if(raison === 'used')
+        msg.textContent = LANG === 'ar' ? '⚠️ هذا الرمز قيد الاستخدام بالفعل' : '⚠️ Code déjà utilisé dans une autre session';
+      else
+        msg.textContent = LANG === 'ar' ? '❌ رمز غير صحيح' : '❌ Code incorrect';
+    }
+  })
+  .catch(function(err){
+    btn.innerHTML = LANG === 'ar' ? 'تحقق ←' : 'Valider le code →';
+    btn.disabled  = false;
+    msg.className = 'code-msg err';
+    msg.textContent = LANG === 'ar' ? 'خطأ في الاتصال — حاول مجدداً' : 'Erreur réseau — réessayez';
+    console.error('[VisaFrance] Erreur validation:', err);
+  });
+}
+
+// ── Vérification silencieuse d'un token existant ─────────────────────────────
+function verifierToken(token, code, callback){
+  fetch(SHEETS_URL + '?action=verify_token&code=' + encodeURIComponent(code) + '&token=' + encodeURIComponent(token))
+  .then(function(r){ return r.json(); })
+  .then(function(d){ callback(d.ok === true); })
+  .catch(function(){ callback(false); });
+}
+
+// ── Injecter le token dans chaque envoi Sheets ───────────────────────────────
+function envoyerVersGoogleSheet(data){
+  var sess = getSession();
+  data._token = sess.token || '';
+  data._code  = sess.code  || '';
+
   fetch(SHEETS_URL, {
     method: 'POST',
     mode: 'no-cors',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
   })
-  .then(function(){ console.log('[VisaFrance] Feuille '+data.feuille+' envoyée OK'); })
-  .catch(function(err){ console.error('[VisaFrance] Erreur feuille '+data.feuille+':', err); });
+  .then(function(){ console.log('[VisaFrance] Feuille ' + data.feuille + ' envoyée OK'); })
+  .catch(function(err){ console.error('[VisaFrance] Erreur feuille ' + data.feuille + ':', err); });
 }
 </script>
 </body>
