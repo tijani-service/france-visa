@@ -337,8 +337,6 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-
 var LANG='fr', ANS={}, SCORE=0;
 
 var L={
@@ -390,6 +388,7 @@ var QBLOCKS_FR=[
   [
     {id:'prenom',lbl:'Prénom',type:'text',req:true,imp:'Identification'},
     {id:'nom',lbl:'Nom de famille',type:'text',req:true,imp:'Identification'},
+    {id:'telephone',lbl:'Numéro WhatsApp (ex: +212 6XX XXX XXX)',type:'tel',req:true,imp:'Reçevoir votre rapport par WhatsApp'},
     {id:'age',lbl:'Tranche d\'âge',type:'radio',req:true,imp:'Détermine les sous-questions (mineur, retraité...)',
      opts:['Moins de 18 ans (mineur)','18–25 ans','26–35 ans','36–50 ans','51–65 ans','Plus de 65 ans (retraité)']},
     {id:'sexe',lbl:'Genre',type:'radio',req:false,imp:'Cohérence administrative',
@@ -584,6 +583,7 @@ var QBLOCKS_AR=[
   [
     {id:'prenom',lbl:'الاسم الأول',type:'text',req:true,imp:'تعريف العميل'},
     {id:'nom',lbl:'اسم العائلة',type:'text',req:true,imp:'تعريف العميل'},
+    {id:'telephone',lbl:'رقم WhatsApp (مثال: 212 6XX XXX XXX+)',type:'tel',req:true,imp:'استقبال تقريرك عبر واتساب'},
     {id:'age',lbl:'الفئة العمرية',type:'radio',req:true,imp:'يحدد الأسئلة الفرعية (قاصر، متقاعد...)',
      opts:['أقل من 18 سنة (قاصر)','18–25 سنة','26–35 سنة','36–50 سنة','51–65 سنة','أكثر من 65 سنة (متقاعد)']},
     {id:'sexe',lbl:'الجنس',type:'radio',req:false,imp:'التوافق الإداري',opts:['ذكر','أنثى','غير محدد']},
@@ -811,6 +811,7 @@ function init(l){
 function showS(id){
   document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});
   document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
 var isRTL=function(){return LANG==='ar';};
@@ -833,8 +834,8 @@ function renderBlock(){
 
   block.forEach(function(q){
     html+='<div class="field"><label class="fl">'+q.lbl+(q.req?' <span style="color:var(--color-text-danger)">*</span>':'')+'</label>';
-    if(q.type==='text'){
-      html+='<input type="text" value="'+(ANS[q.id]||'')+'" oninput="ANS[\''+q.id+'\']=this.value" placeholder="'+(isRTL()?'أدخل إجابتك...':'Votre réponse...')+'">';
+    if(q.type==='text'||q.type==='tel'){
+      html+='<input type="'+(q.type==='tel'?'tel':'text')+'" value="'+(ANS[q.id]||'')+'" oninput="ANS[\''+q.id+'\']=this.value" placeholder="'+(q.type==='tel'?'+212 6XX XXX XXX':(isRTL()?'أدخل إجابتك...':'Votre réponse...'))+'">';
     } else if(q.type==='select'){
       html+='<select onchange="ANS[\''+q.id+'\']=this.value"><option value="">'+(isRTL()?'اختر...':'Choisir...')+'</option>';
       q.opts.forEach(function(o){html+='<option value="'+esc(o)+'" '+(ANS[q.id]===o?'selected':'')+'>'+o+'</option>';});
@@ -876,12 +877,12 @@ function pickC(id,val){
 
 function nextQ(){
   activeBlocks=getActiveBlocks();
-  if(blockIdx<activeBlocks.length-1){blockIdx++;renderBlock();}
+  if(blockIdx<activeBlocks.length-1){blockIdx++;renderBlock();window.scrollTo({top:0,behavior:'smooth'});}
   else{calcAndReport();}
 }
 
 function prevQ(){
-  if(blockIdx>0){blockIdx--;renderBlock();}
+  if(blockIdx>0){blockIdx--;renderBlock();window.scrollTo({top:0,behavior:'smooth'});}
 }
 
 // SCORING ENGINE
@@ -1090,9 +1091,12 @@ function buildReport(){
 
   html+='<div class="nav-btns" style="flex-wrap:wrap;gap:8px">';
   html+='<button class="btn btn-p" onclick="buildPacks('+scoreIdx+')"> '+(fr?'Voir les packs':'عرض الباقات')+' →</button>';
-  html+='<button class="btn" onclick="buildWA()"> '+(fr?'WhatsApp':'واتساب')+'</button>';
-  html+='<button class="btn" onclick="buildJSON()"> JSON</button>';
-  html+='</div></div>';
+  html+='</div>';
+  html+='<div style="margin-top:1rem;padding:1rem;background:#f0fdf4;border:1px solid #86efac;border-radius:12px">';
+  html+='<p style="font-size:0.85rem;color:#166534;margin-bottom:0.75rem">📱 '+(fr?'<strong>Recevoir ce rapport sur WhatsApp</strong><br>Votre rapport complet sera envoyé sur votre numéro : <strong>'+(ANS.telephone||'non renseigné')+'</strong>':'<strong>استقبل هذا التقرير على واتساب</strong><br>سيُرسَل تقريرك الكامل على رقمك : <strong>'+(ANS.telephone||'غير مُسجَّل')+'</strong>')+'</p>';
+  html+='<button class="btn btn-full" style="background:#25D366;color:white;border-color:#25D366;font-weight:700" onclick="envoyerRapportWA()">📲 '+(fr?'M\'envoyer mon rapport sur WhatsApp':'أرسل لي تقريري على واتساب')+'</button>';
+  html+='</div>';
+  html+='</div>';
 
   document.getElementById('rZone').innerHTML=html;
   showS('s2');
@@ -1144,19 +1148,22 @@ function buildReport(){
   };
 
   var cid      = 'CLI-'+Date.now().toString(36).toUpperCase();
+  window._CLIENT_ID = cid;
   var now      = new Date().toISOString();
   var msgSheet = (LANG==='fr') ? msgFR_wa : msgAR_wa;
   var sess     = getSession();
 
   // Feuille 1 · SUIVI
   envoyerVersGoogleSheet({ feuille:'SUIVI', client_id:cid, date_eval:now, langue:LANG,
-    prenom:ANS.prenom||'', nom:ANS.nom||'', ville:ANS.ville_maroc||'', motif:ANS.motif||'',
+    prenom:ANS.prenom||'', nom:ANS.nom||'', telephone:ANS.telephone||'',
+    ville:ANS.ville_maroc||'', motif:ANS.motif||'',
     score:SCORE, niveau:lv.lbl, pack_recommande:packRec, pack_choisi:'',
-    statut:'Nouveau', message_wa:msgSheet, notes:'',
+    statut:'Nouveau', priorite:'', message_wa:msgSheet, notes:'',
     code_acces: sess.code||'' });
 
   // Feuille 2 · PROFIL
   setTimeout(function(){ envoyerVersGoogleSheet({ feuille:'PROFIL', client_id:cid,
+    telephone:ANS.telephone||'',
     age:ANS.age||'', sexe:ANS.sexe||'', nationalite:ANS.nationalite||'',
     statut_civil:ANS.statut_civil||'', enfants_maroc:ANS.enfants_maroc||'',
     conjoint_maroc:ANS.conjoint_maroc||'', emploi:ANS.emploi||'',
@@ -1216,7 +1223,7 @@ function buildPacks(recIdx){
     html+='<h3>'+p.name+'</h3><div><div class="pack-price">'+p.prix+'</div><span class="badge b-ok" style="font-size:10px">'+p.sub+'</span></div></div>';
     html+='<p style="margin-bottom:.75rem">'+p.desc+'</p>';
     p.items.forEach(function(it){html+='<div class="checklist-item"><div class="dot dg"></div>'+it+'</div>';});
-    html+='<button class="btn btn-p btn-full" style="margin-top:.875rem" onclick="alert(\''+p.cta+'\')">'+(fr?p.cta===packs[0].cta?p.cta:'Choisir ce pack':p.cta===packs[0].cta?p.cta:'اختيار هذه الباقة')+'</button>';
+    html+='<button class="btn btn-p btn-full" style="margin-top:.875rem" onclick="choisirPack(\''+esc(p.name)+'\',\''+esc(p.prix)+'\')">'+(fr?'Choisir ce pack':'اختيار هذه الباقة')+'</button>';
     html+='</div>';
   });
   html+='<div class="nav-btns"><button class="btn" onclick="showS(\'s2\')">'+(fr?'← Rapport':'← التقرير')+'</button>';
@@ -1311,7 +1318,7 @@ function cpJ(){
 //  SÉCURITÉ — Gestion du code d'accès et du token de session
 // ════════════════════════════════════════════════════════════════════════════
 
-var SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxk6Ayj3ZKdfuOwgnsFbul_aqMfb9XEW05aMNdYgKQ9sp9wQUT9jfJNd93oNd6AfgIb/exec';
+var SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxD_blC34LMqbQt93xS10Ps84-VaAixu2dhtaRfdvb0fbVexcjK264KkHqPTMZFrNCV/exec';
 
 // Token stocké en sessionStorage (effacé à la fermeture de l'onglet)
 var SESSION_KEY  = 'vf_token';
@@ -1448,26 +1455,104 @@ function envoyerVersGoogleSheet(data){
   .catch(function(err){ console.error('[VisaFrance] Erreur feuille ' + data.feuille + ':', err); });
 }
 
-// ── Exposition des fonctions appelées depuis le HTML inline ──────────────────
-// Nécessaire car tout le code est dans DOMContentLoaded (scope local)
-window.validerCode    = validerCode;
-window.init           = init;
-window.prevQ          = prevQ;
-window.nextQ          = nextQ;
-window.fermerModal    = fermerModal;
-window.showS          = showS;
-window.pickR          = pickR;
-window.pickC          = pickC;
-window.swTab          = swTab;
-window.cpWA           = cpWA;
-window.cpJ            = cpJ;
-window.buildPacks     = buildPacks;
-window.buildWA        = buildWA;
-window.buildJSON      = buildJSON;
-window.choisirPack    = choisirPack;
-window.envoyerRapportWA = envoyerRapportWA;
+// ── Envoi WhatsApp direct (rapport complet) ──────────────────────────────────
+function envoyerRapportWA(){
+  var rapport = window._RAPPORT||{};
+  var fr = LANG==='fr';
+  var msg = fr ? (rapport.msgFR||'') : (rapport.msgAR||'');
+  var tel = (ANS.telephone||'').replace(/[\s\-\(\)\.]/g,'');
+  if(!tel){
+    alert(fr?'Numéro de téléphone non renseigné. Veuillez remplir le champ téléphone dans vos informations personnelles.':'رقم الهاتف غير مُسجَّل. يرجى ملء حقل الهاتف في معلوماتك الشخصية.');
+    return;
+  }
+  if(!msg){
+    alert(fr?'Rapport non disponible.':'التقرير غير متاح.');
+    return;
+  }
+  // Nettoyer le + du début si présent, wa.me attend le format international sans +
+  if(tel.charAt(0)==='+') tel=tel.substring(1);
+  var url = 'https://wa.me/'+tel+'?text='+encodeURIComponent(msg);
+  window.open(url,'_blank');
+}
 
-}); // fin DOMContentLoaded
+// ── Choisir un pack — sauvegarde Sheets + popup confirmation ────────────────
+function choisirPack(nomPack, prixPack){
+  var fr = LANG==='fr';
+
+  // Sauvegarder dans Google Sheets avec priorité ORANGE
+  envoyerVersGoogleSheet({
+    feuille:     'SUIVI',
+    action:      'update_pack',
+    client_id:   window._CLIENT_ID || '',
+    pack_choisi: nomPack,
+    statut:      'En attente',
+    priorite:    'ORANGE',
+    telephone:   ANS.telephone||'',
+    prenom:      ANS.prenom||'',
+    nom:         ANS.nom||''
+  });
+
+  // Afficher le popup de confirmation
+  var modal      = document.getElementById('modalConfirmPack');
+  var modalTitre = document.getElementById('modalTitre');
+  var modalMsg   = document.getElementById('modalMsg');
+  var modalBtn   = document.getElementById('modalBtn');
+  if(!modal) return;
+
+  if(fr){
+    modalTitre.textContent = '✅ Demande enregistrée !';
+    modalMsg.innerHTML =
+      'Votre choix <strong>'+nomPack+'</strong> ('+prixPack+') a bien été enregistré.<br><br>'
+      +'📞 Notre équipe va vous contacter très prochainement'
+      +(ANS.telephone?' au <strong>'+ANS.telephone+'</strong>':'')
+      +' pour valider votre demande et finaliser les modalités.<br><br>'
+      +'<span style="color:#d97706;font-weight:600">⭐ Votre dossier est traité en priorité.</span>';
+    modalBtn.textContent = 'Parfait, merci !';
+  } else {
+    modalTitre.textContent = '✅ تم تسجيل طلبك!';
+    modalMsg.innerHTML =
+      'تم تسجيل اختيارك <strong>'+nomPack+'</strong> ('+prixPack+') بنجاح.<br><br>'
+      +'📞 سيتصل بك فريقنا قريباً جداً'
+      +(ANS.telephone?' على <strong>'+ANS.telephone+'</strong>':'')
+      +' لتأكيد طلبك وإتمام الإجراءات.<br><br>'
+      +'<span style="color:#d97706;font-weight:600">⭐ ملفك يُعالَج بصفة أولوية.</span>';
+    modalBtn.textContent = 'شكراً، تمام!';
+  }
+  modal.style.display = 'flex';
+}
+
+function fermerModal(){
+  var modal = document.getElementById('modalConfirmPack');
+  if(modal) modal.style.display = 'none';
+}
 </script>
+
+<!-- ══ CSS MODAL ══ -->
+<style>
+.modal-overlay{
+  display:none;position:fixed;inset:0;z-index:9999;
+  background:rgba(0,0,0,0.6);align-items:center;justify-content:center;padding:1rem;
+}
+.modal-box{
+  background:white;border-radius:16px;padding:2rem 1.5rem;
+  max-width:400px;width:100%;text-align:center;
+  box-shadow:0 25px 60px rgba(0,0,0,0.35);
+  animation:fadeIn 0.25s ease-out;
+}
+.modal-titre{font-size:1.2rem;font-weight:800;color:#1e293b;margin-bottom:1rem;}
+.modal-msg{font-size:0.9rem;color:#64748b;line-height:1.7;margin-bottom:1.5rem;}
+.modal-msg strong{color:#1e293b;}
+</style>
+
+<!-- ══ MODAL CONFIRMATION PACK ══ -->
+<div class="modal-overlay" id="modalConfirmPack" onclick="if(event.target===this)fermerModal()">
+  <div class="modal-box">
+    <div style="font-size:3rem;margin-bottom:1rem">🎉</div>
+    <div class="modal-titre" id="modalTitre"></div>
+    <div class="modal-msg" id="modalMsg"></div>
+    <button class="btn btn-p btn-full" id="modalBtn" onclick="fermerModal()">Parfait, merci !</button>
+  </div>
+</div>
+
 </body>
 </html>
