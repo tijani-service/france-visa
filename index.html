@@ -237,23 +237,6 @@
             position: fixed; top: 12px; right: 12px; z-index: 100;
         }
         .session-dot { width: 6px; height: 6px; border-radius: 50%; background: #16a34a; }
-
-        /* ── Modal confirmation pack ── */
-        .modal-overlay {
-            display: none; position: fixed; inset: 0; z-index: 1000;
-            background: rgba(0,0,0,0.55); align-items: center; justify-content: center;
-            padding: 1rem;
-        }
-        .modal-box {
-            background: white; border-radius: var(--radius); padding: 2rem 1.5rem;
-            max-width: 420px; width: 100%; text-align: center;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            animation: fadeIn 0.25s ease-out;
-        }
-        .modal-icon { font-size: 3rem; margin-bottom: 1rem; }
-        .modal-titre { font-size: 1.2rem; font-weight: 800; color: var(--text-main); margin-bottom: 1rem; }
-        .modal-msg { font-size: 0.9rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 1.5rem; }
-        .modal-msg strong { color: var(--text-main); }
     </style>
 </head>
 <body>
@@ -354,6 +337,8 @@
 </div>
 
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+
 var LANG='fr', ANS={}, SCORE=0;
 
 var L={
@@ -405,7 +390,6 @@ var QBLOCKS_FR=[
   [
     {id:'prenom',lbl:'Prénom',type:'text',req:true,imp:'Identification'},
     {id:'nom',lbl:'Nom de famille',type:'text',req:true,imp:'Identification'},
-    {id:'telephone',lbl:'Numéro de téléphone WhatsApp (format international ex: +212 6XX XX XX XX)',type:'tel',req:true,imp:'Utilisé pour vous envoyer votre rapport par WhatsApp'},
     {id:'age',lbl:'Tranche d\'âge',type:'radio',req:true,imp:'Détermine les sous-questions (mineur, retraité...)',
      opts:['Moins de 18 ans (mineur)','18–25 ans','26–35 ans','36–50 ans','51–65 ans','Plus de 65 ans (retraité)']},
     {id:'sexe',lbl:'Genre',type:'radio',req:false,imp:'Cohérence administrative',
@@ -600,7 +584,6 @@ var QBLOCKS_AR=[
   [
     {id:'prenom',lbl:'الاسم الأول',type:'text',req:true,imp:'تعريف العميل'},
     {id:'nom',lbl:'اسم العائلة',type:'text',req:true,imp:'تعريف العميل'},
-    {id:'telephone',lbl:'رقم الهاتف WhatsApp (مثال: 212 6XX XX XX XX+)',type:'tel',req:true,imp:'يُستخدم لإرسال تقريرك عبر واتساب'},
     {id:'age',lbl:'الفئة العمرية',type:'radio',req:true,imp:'يحدد الأسئلة الفرعية (قاصر، متقاعد...)',
      opts:['أقل من 18 سنة (قاصر)','18–25 سنة','26–35 سنة','36–50 سنة','51–65 سنة','أكثر من 65 سنة (متقاعد)']},
     {id:'sexe',lbl:'الجنس',type:'radio',req:false,imp:'التوافق الإداري',opts:['ذكر','أنثى','غير محدد']},
@@ -828,7 +811,6 @@ function init(l){
 function showS(id){
   document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});
   document.getElementById(id).classList.add('active');
-  window.scrollTo({top:0, behavior:'smooth'});
 }
 
 var isRTL=function(){return LANG==='ar';};
@@ -851,9 +833,8 @@ function renderBlock(){
 
   block.forEach(function(q){
     html+='<div class="field"><label class="fl">'+q.lbl+(q.req?' <span style="color:var(--color-text-danger)">*</span>':'')+'</label>';
-    if(q.type==='text'||q.type==='tel'){
-      var itype=q.type==='tel'?'tel':'text';
-      html+='<input type="'+itype+'" value="'+(ANS[q.id]||'')+'" oninput="ANS[\''+q.id+'\']=this.value" placeholder="'+(q.type==='tel'?(isRTL()?'+212 6XX XX XX XX':'+212 6XX XX XX XX'):(isRTL()?'أدخل إجابتك...':'Votre réponse...'))+'">';
+    if(q.type==='text'){
+      html+='<input type="text" value="'+(ANS[q.id]||'')+'" oninput="ANS[\''+q.id+'\']=this.value" placeholder="'+(isRTL()?'أدخل إجابتك...':'Votre réponse...')+'">';
     } else if(q.type==='select'){
       html+='<select onchange="ANS[\''+q.id+'\']=this.value"><option value="">'+(isRTL()?'اختر...':'Choisir...')+'</option>';
       q.opts.forEach(function(o){html+='<option value="'+esc(o)+'" '+(ANS[q.id]===o?'selected':'')+'>'+o+'</option>';});
@@ -895,12 +876,12 @@ function pickC(id,val){
 
 function nextQ(){
   activeBlocks=getActiveBlocks();
-  if(blockIdx<activeBlocks.length-1){blockIdx++;renderBlock();window.scrollTo({top:0,behavior:'smooth'});}
+  if(blockIdx<activeBlocks.length-1){blockIdx++;renderBlock();}
   else{calcAndReport();}
 }
 
 function prevQ(){
-  if(blockIdx>0){blockIdx--;renderBlock();window.scrollTo({top:0,behavior:'smooth'});}
+  if(blockIdx>0){blockIdx--;renderBlock();}
 }
 
 // SCORING ENGINE
@@ -1109,12 +1090,9 @@ function buildReport(){
 
   html+='<div class="nav-btns" style="flex-wrap:wrap;gap:8px">';
   html+='<button class="btn btn-p" onclick="buildPacks('+scoreIdx+')"> '+(fr?'Voir les packs':'عرض الباقات')+' →</button>';
-  html+='</div>';
-  html+='<div style="margin-top:1rem;padding:1rem;background:#f0fdf4;border:1px solid #86efac;border-radius:var(--radius)">';
-  html+='<p style="font-size:0.85rem;color:#166534;margin-bottom:0.75rem">📱 '+(fr?'<strong>Recevoir ce rapport sur WhatsApp</strong> — Cliquez ci-dessous pour envoyer automatiquement votre rapport complet sur votre numéro WhatsApp enregistré ('+(ANS.telephone||'non renseigné')+').':'<strong>استقبل هذا التقرير على واتساب</strong> — انقر أدناه لإرسال تقريرك الكامل تلقائياً على رقمك المسجل ('+(ANS.telephone||'غير مُسجَّل')+')')+'</p>';
-  html+='<button class="btn btn-p btn-full" onclick="envoyerRapportWA()" style="background:#25D366;border-color:#25D366">📲 '+(fr?'M\'envoyer mon rapport sur WhatsApp':'أرسل لي تقريري على واتساب')+'</button>';
-  html+='</div>';
-  html+='</div>';
+  html+='<button class="btn" onclick="buildWA()"> '+(fr?'WhatsApp':'واتساب')+'</button>';
+  html+='<button class="btn" onclick="buildJSON()"> JSON</button>';
+  html+='</div></div>';
 
   document.getElementById('rZone').innerHTML=html;
   showS('s2');
@@ -1166,22 +1144,19 @@ function buildReport(){
   };
 
   var cid      = 'CLI-'+Date.now().toString(36).toUpperCase();
-  window._CLIENT_ID = cid;  // Stocké pour choisirPack()
   var now      = new Date().toISOString();
   var msgSheet = (LANG==='fr') ? msgFR_wa : msgAR_wa;
   var sess     = getSession();
 
   // Feuille 1 · SUIVI
   envoyerVersGoogleSheet({ feuille:'SUIVI', client_id:cid, date_eval:now, langue:LANG,
-    prenom:ANS.prenom||'', nom:ANS.nom||'', telephone:ANS.telephone||'',
-    ville:ANS.ville_maroc||'', motif:ANS.motif||'',
+    prenom:ANS.prenom||'', nom:ANS.nom||'', ville:ANS.ville_maroc||'', motif:ANS.motif||'',
     score:SCORE, niveau:lv.lbl, pack_recommande:packRec, pack_choisi:'',
     statut:'Nouveau', message_wa:msgSheet, notes:'',
     code_acces: sess.code||'' });
 
   // Feuille 2 · PROFIL
   setTimeout(function(){ envoyerVersGoogleSheet({ feuille:'PROFIL', client_id:cid,
-    telephone:ANS.telephone||'',
     age:ANS.age||'', sexe:ANS.sexe||'', nationalite:ANS.nationalite||'',
     statut_civil:ANS.statut_civil||'', enfants_maroc:ANS.enfants_maroc||'',
     conjoint_maroc:ANS.conjoint_maroc||'', emploi:ANS.emploi||'',
@@ -1218,23 +1193,6 @@ function buildReport(){
   console.log('[VisaFrance] 5 feuilles envoyées — client_id:', cid);
 }
 
-function envoyerRapportWA(){
-  var rapport = window._RAPPORT||{};
-  var fr = LANG==='fr';
-  var msg = fr ? (rapport.msgFR||'') : (rapport.msgAR||'');
-  var tel = (ANS.telephone||'').replace(/[\s\-\(\)]/g,'');
-  if(!tel){
-    alert(fr?'Numéro de téléphone non renseigné. Veuillez compléter votre profil.':'رقم الهاتف غير مُسجَّل. يرجى استكمال ملفك.');
-    return;
-  }
-  if(!msg){
-    alert(fr?'Rapport non disponible.':'التقرير غير متاح.');
-    return;
-  }
-  var url = 'https://wa.me/'+tel.replace('+','')+'?text='+encodeURIComponent(msg);
-  window.open(url,'_blank');
-}
-
 function buildPacks(recIdx){
   var fr=LANG==='fr';
   var dir=isRTL()?'dir="rtl"':'';
@@ -1258,7 +1216,7 @@ function buildPacks(recIdx){
     html+='<h3>'+p.name+'</h3><div><div class="pack-price">'+p.prix+'</div><span class="badge b-ok" style="font-size:10px">'+p.sub+'</span></div></div>';
     html+='<p style="margin-bottom:.75rem">'+p.desc+'</p>';
     p.items.forEach(function(it){html+='<div class="checklist-item"><div class="dot dg"></div>'+it+'</div>';});
-    html+='<button class="btn btn-p btn-full" style="margin-top:.875rem" onclick="choisirPack(\''+esc(p.name)+'\',\''+esc(p.prix)+'\')">'+(fr?'Choisir ce pack':'اختيار هذه الباقة')+'</button>';
+    html+='<button class="btn btn-p btn-full" style="margin-top:.875rem" onclick="alert(\''+p.cta+'\')">'+(fr?p.cta===packs[0].cta?p.cta:'Choisir ce pack':p.cta===packs[0].cta?p.cta:'اختيار هذه الباقة')+'</button>';
     html+='</div>';
   });
   html+='<div class="nav-btns"><button class="btn" onclick="showS(\'s2\')">'+(fr?'← Rapport':'← التقرير')+'</button>';
@@ -1475,53 +1433,6 @@ function verifierToken(token, code, callback){
 }
 
 // ── Injecter le token dans chaque envoi Sheets ───────────────────────────────
-
-function choisirPack(nomPack, prixPack){
-  var fr = LANG==='fr';
-  var tel = (ANS.telephone||'').replace(/[\s\-\(\)]/g,'');
-
-  // 1. Sauvegarder dans Google Sheets avec flag priorité orange
-  envoyerVersGoogleSheet({
-    feuille:      'SUIVI',
-    action:       'update_pack',
-    client_id:    window._CLIENT_ID || '',
-    pack_choisi:  nomPack,
-    statut:       'En attente',
-    priorite:     'ORANGE',
-    telephone:    ANS.telephone||'',
-    prenom:       ANS.prenom||'',
-    nom:          ANS.nom||''
-  });
-
-  // 2. Afficher le popup de confirmation
-  var modal = document.getElementById('modalConfirmPack');
-  var modalTitre = document.getElementById('modalTitre');
-  var modalMsg   = document.getElementById('modalMsg');
-  var modalBtn   = document.getElementById('modalBtn');
-
-  if(fr){
-    modalTitre.textContent = '✅ Demande enregistrée !';
-    modalMsg.innerHTML =
-      'Votre choix pour le <strong>'+nomPack+'</strong> ('+prixPack+') a bien été enregistré.<br><br>'
-      +'📞 Notre équipe va vous contacter très prochainement'+(tel?' au <strong>'+ANS.telephone+'</strong>':'')+' pour valider votre demande et finaliser les modalités.<br><br>'
-      +'<span style="color:#d97706;font-weight:600">⭐ Votre dossier est marqué comme prioritaire.</span>';
-    modalBtn.textContent = 'Parfait, merci !';
-  } else {
-    modalTitre.textContent = '✅ تم تسجيل طلبك!';
-    modalMsg.innerHTML =
-      'تم تسجيل اختيارك لـ <strong>'+nomPack+'</strong> ('+prixPack+') بنجاح.<br><br>'
-      +'📞 سيتصل بك فريقنا قريباً جداً'+(tel?' على <strong>'+ANS.telephone+'</strong>':'')+' لتأكيد طلبك وإتمام الإجراءات.<br><br>'
-      +'<span style="color:#d97706;font-weight:600">⭐ ملفك تم تصنيفه كأولوية.</span>';
-    modalBtn.textContent = 'شكراً، تمام!';
-  }
-
-  modal.style.display='flex';
-}
-
-function fermerModal(){
-  document.getElementById('modalConfirmPack').style.display='none';
-}
-
 function envoyerVersGoogleSheet(data){
   var sess = getSession();
   data._token = sess.token || '';
@@ -1536,15 +1447,27 @@ function envoyerVersGoogleSheet(data){
   .then(function(){ console.log('[VisaFrance] Feuille ' + data.feuille + ' envoyée OK'); })
   .catch(function(err){ console.error('[VisaFrance] Erreur feuille ' + data.feuille + ':', err); });
 }
-<!-- ══ MODAL CONFIRMATION PACK ══ -->
-<div class="modal-overlay" id="modalConfirmPack" onclick="if(event.target===this)fermerModal()">
-  <div class="modal-box">
-    <div class="modal-icon">🎉</div>
-    <div class="modal-titre" id="modalTitre">Demande enregistrée !</div>
-    <div class="modal-msg" id="modalMsg"></div>
-    <button class="btn btn-p btn-full" id="modalBtn" onclick="fermerModal()">Parfait, merci !</button>
-  </div>
-</div>
 
+// ── Exposition des fonctions appelées depuis le HTML inline ──────────────────
+// Nécessaire car tout le code est dans DOMContentLoaded (scope local)
+window.validerCode    = validerCode;
+window.init           = init;
+window.prevQ          = prevQ;
+window.nextQ          = nextQ;
+window.fermerModal    = fermerModal;
+window.showS          = showS;
+window.pickR          = pickR;
+window.pickC          = pickC;
+window.swTab          = swTab;
+window.cpWA           = cpWA;
+window.cpJ            = cpJ;
+window.buildPacks     = buildPacks;
+window.buildWA        = buildWA;
+window.buildJSON      = buildJSON;
+window.choisirPack    = choisirPack;
+window.envoyerRapportWA = envoyerRapportWA;
+
+}); // fin DOMContentLoaded
+</script>
 </body>
 </html>
